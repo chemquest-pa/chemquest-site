@@ -25,7 +25,7 @@ Changes to the original site that the presidents should OK (like the new sponsor
 
 - [ ] **beehiiv's own sign-up page** (the purple "Join the ChemQuest Community!" page): in beehiiv's website builder, add a line under the heading saying what subscribers get (one email every other Sunday with a science topic and ChemQuest news, free, unsubscribe anytime), and use the full-size logo.
 
-- [ ] **Set up GitHub so the Technology Chairs can edit** (and so new issues arrive by themselves). Decide whose account or club organization owns it; [EDITING.md](EDITING.md) ("Working together on GitHub") has the steps. You add the two Cloudflare secrets yourself. Until then, new issues need `npm run newsletter` and a manual upload.
+- [ ] **Finish GitHub** (github.com/chemquest-pa/chemquest-site): add the Cloudflare API token, finish the branch rule, run "Publish website" once, and invite the Technology Chairs. Steps in TECH-PLAN.md, section 3.
 - [ ] **beehiiv editors.** beehiiv's free plan allows one login. Either the writers share the club's login, or upgrade: Lite allows 2 people (about $49 a month billed yearly, up to 1,000 subscribers), and Pro allows 10 (about $95 a month billed yearly). On a paid plan, a "Contributor" can write and edit posts without being able to send them. The website side is free either way.
 - [ ] **The first 7 issues (optional).** Drive drafts 1 to 7 (December 2024 to March 2025) were sent before the newsletter moved to beehiiv, so they aren't in the website's archive. They're mostly STEM news and summer-program listings with 2025 deadlines. Decide whether to add them; I'd leave them out.
 - [ ] **Pictures copied from other websites** in past issues, now also shown on the club's site. A newsletter email is gone in a day, but the website keeps them up. Replace or remove the ones you don't have permission for:
@@ -81,6 +81,8 @@ Changes to the original site that the presidents should OK (like the new sponsor
 - [ ] **Test on real phones** (an iPhone and an Android) and with a screen reader. The automated tests can't fully cover these.
 
 ## Done
+
+- [x] GitHub organization chemquest-pa and public repository chemquest-site, with the site uploaded (round 16). Cloudflare Web Analytics on. Google structured data on the homepage. Editing guide rewritten for new officers.
 
 - [x] Newsletter sign-up box on our own site (beehiiv form "ChemQuest website (Newsletter page)", round 15). After confirming their email, new subscribers land on our Newsletter page instead of beehiiv's.
 

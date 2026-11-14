@@ -26,16 +26,14 @@ The site works. What's missing is content and decisions, all listed in [CHECKLIS
 
 GitHub keeps the website's files, lets several people edit them, and publishes every change automatically. Free.
 
-**One-time setup** (an hour, one person):
+**Set up (November 14, 2026):** the club organization is **github.com/chemquest-pa**, and the site is in the public repository **chemquest-site**. The Cloudflare account ID is saved as a secret. Visitor stats are on (Cloudflare → Workers & Pages → chemquest → Metrics).
 
-1. Each Technology Chair makes a GitHub account (13 or older). Students can also claim the free GitHub Student Developer Pack.
-2. One of them creates a **free organization** (github.com → profile picture → Your organizations → New organization → Free), for example `chemquest-pa`. Make at least two people **owners**: both Technology Chairs, plus one officer or adult who will still be around next year.
-3. Create a **public** repository in it, named `chemquest-site`. Public is free and lets you protect the main branch. Nothing in the project is secret (the `.gitignore` file leaves out private notes).
-4. Upload the project folder. Easiest is GitHub Desktop (desktop.github.com): File → Add local repository → choose the folder → Publish repository → pick the organization. `node_modules`, `dist`, and `.astro` are skipped automatically.
-5. In Cloudflare: My Profile → API Tokens → Create Token → Custom token. Permission: **Account → Cloudflare Pages → Edit**, for the ChemQuest account only. Copy the token.
-6. In the GitHub repository: Settings → Secrets and variables → Actions → New repository secret. Add `CLOUDFLARE_API_TOKEN` (the token) and `CLOUDFLARE_ACCOUNT_ID` (shown in Cloudflare on the Workers & Pages page).
-7. Settings → Rules → Rulesets → New branch ruleset for `main`: tick **Restrict deletions** and **Block force pushes** only. (Don't require pull requests, or the newsletter import can't save.)
-8. Actions tab → **Publish website** → Run workflow. A green check means it worked. Then run **Import newsletter** once the same way.
+**Still to do once:**
+
+1. Finish the branch protection: Settings → Rules → Rulesets → New branch ruleset named "Protect main", target the default branch, Active, with **Restrict deletions** and **Block force pushes** ticked. (GitHub asks the owner to confirm by email first.)
+2. Add a Cloudflare API token (Cloudflare → My Profile → API Tokens → Create Token → Custom token, permission **Account → Cloudflare Pages → Edit**). In GitHub, add it under the repository's Settings → Secrets and variables → Actions → New repository secret, named `CLOUDFLARE_API_TOKEN`.
+3. Actions tab → **Publish website** → Run workflow. A green check means it works.
+4. Invite the Technology Chairs: github.com/orgs/chemquest-pa/people → Invite member. Make at least one of them an **Owner**, so the club doesn't depend on one person.
 
 **Day to day:** open a file on github.com, click the pencil, edit, then **Commit changes**. The site updates in about two minutes. Bigger changes: edit on your computer, preview with `npm run dev`, then Commit and Push in GitHub Desktop. To undo something, open the file's History and revert it.
 
@@ -43,7 +41,7 @@ GitHub keeps the website's files, lets several people edit them, and publishes e
 - GitHub pauses scheduled jobs in a public repository after 60 days with no changes (summer). If new issues stop appearing, Actions → Import newsletter → Enable workflow / Run workflow.
 - Keep the existing Cloudflare project ("chemquest"). Cloudflare can't switch it to connect to GitHub directly, which is why the publishing goes through GitHub Actions instead.
 
-More detail: [EDITING.md](EDITING.md), "Working together on GitHub" and "Newsletter".
+How to edit: [EDITING.md](EDITING.md).
 
 ## 4. Get a real domain (about $8.50 a year)
 
