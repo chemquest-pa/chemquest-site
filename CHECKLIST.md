@@ -20,7 +20,6 @@ Changes to the original site that the presidents should OK (like the new sponsor
 
 ## Newsletter section
 
-- [ ] **A website line in every issue.** The writers' Google Doc template ("Newsletter IDEAS + TEMPLATE" in Drive) should get one line near the top, like "Read this issue and every past one at chemquest.pages.dev/newsletter", so each email points to the website. beehiiv's free plan has no place for a footer link, and its own post template isn't what the writers use.
 - [ ] **When the domain changes:** in beehiiv, Settings → Emails → "Opt in redirect URL" points to chemquest.pages.dev/newsletter/. Change it to the new domain.
 
 - [ ] **beehiiv's own sign-up page** (the purple "Join the ChemQuest Community!" page): in beehiiv's website builder, add a line under the heading saying what subscribers get (one email every other Sunday with a science topic and ChemQuest news, free, unsubscribe anytime), and use the full-size logo.
@@ -81,6 +80,8 @@ Changes to the original site that the presidents should OK (like the new sponsor
 - [ ] **Test on real phones** (an iPhone and an Android) and with a screen reader. The automated tests can't fully cover these.
 
 ## Done
+
+- [x] Newsletter template (Template tab of "Newsletter IDEAS + TEMPLATE" in Drive) cleaned up: a how-to note, a line linking to the website, simpler sections, shorter volunteer and feedback blocks, and the current Discord invite (round 16). A footer link in every email would need a paid beehiiv plan, so the link lives in the template.
 
 - [x] GitHub organization chemquest-pa and public repository chemquest-site, with the site uploaded (round 16). Cloudflare Web Analytics on. Google structured data on the homepage. Editing guide rewritten for new officers.
 
