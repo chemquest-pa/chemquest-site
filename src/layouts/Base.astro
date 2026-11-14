@@ -31,6 +31,20 @@ const shareImage = new URL('/share.png', Astro.site ?? Astro.url).href;
   <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content="ChemQuest: free, hands-on science events for kids, run by high school students." />
   <meta name="twitter:card" content="summary_large_image" />
+  <!-- On the homepage: tells Google who ChemQuest is (name, logo, email, social accounts), for its search results. -->
+  {path === '/' && (
+    <script type="application/ld+json" set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'NGO',
+      name: 'ChemQuest',
+      url: new URL('/', Astro.site ?? Astro.url).href,
+      logo: new URL('/logo.png', Astro.site ?? Astro.url).href,
+      email: links.email,
+      nonprofitStatus: 'Nonprofit501c3',
+      description: 'Free, hands-on science events for kids, run by high school students in Glen Mills, PA.',
+      sameAs: [links.instagram, links.facebook, links.linkedin],
+    })} />
+  )}
   <!-- Pages fade into each other. This sits in the page itself (not the stylesheet) so the browser sees it right away. -->
   <style is:inline>@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }</style>
 </head>
