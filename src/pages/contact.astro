@@ -1,0 +1,95 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import { links, discordIcon, getDiscordCounts } from '../site';
+
+const discord = await getDiscordCounts();
+const mail = (subject: string) => `mailto:${links.email}?subject=${encodeURIComponent(subject)}`;
+const shortcuts = [
+  { need: 'Sign up for an event', href: '/events/', cta: 'See upcoming events' },
+  { need: 'Host an event at your library or center', href: mail('Hosting a ChemQuest event'), cta: 'Email us about hosting' },
+  { need: 'Volunteer (high school students)', href: '/volunteer/', cta: 'How to volunteer' },
+  { need: 'Sponsor or donate', href: '/sponsor/', cta: 'Sponsorship tiers and Venmo' },
+  { need: 'Get event news by email', href: links.newsletterSubscribe, cta: 'Subscribe to the newsletter' },
+  { need: 'Read past newsletter issues', href: links.newsletter, cta: 'All newsletter issues' },
+  { need: 'Tell us what you think of the newsletter', href: links.newsletterFeedback, cta: 'Newsletter feedback form' },
+];
+const socials: { name: string; href: string; handle?: string; note?: string }[] = [
+  { name: 'Instagram', handle: '@chemquestpa', href: links.instagram, note: 'Event announcements and photos' },
+  { name: 'Facebook', href: links.facebook },
+  { name: 'LinkedIn', href: links.linkedin },
+];
+---
+<Base title="Contact" description="Email or call ChemQuest about events, hosting, volunteering, or sponsorship, or chat with us on Discord.">
+  <PageHead title="Contact us" doodle="cans">
+    Questions about an event, hosting, volunteering, or sponsoring? Message us on Discord or send us an email.
+  </PageHead>
+
+  <section class="section" aria-labelledby="reach-h">
+    <div class="wrap reach">
+      <div class="cards" data-stagger>
+        <h2 id="reach-h" class="sr-only">Ways to reach us</h2>
+        <div class="card discord">
+          <svg class="dlogo" viewBox="0 0 24 24" aria-hidden="true"><path d={discordIcon} /></svg>
+          <h3>Discord</h3>
+          <p>Anyone in the ChemQuest community who's 13 or older can join, including kids in 7th and 8th grade, parents, and volunteers. Post a question there and an officer will answer.</p>
+          {discord && <p class="members"><span data-discord="members">{discord.members}</span> members</p>}
+          <a class="btn btn-secondary" href={links.discord}>Join the ChemQuest server</a>
+        </div>
+        <div class="card">
+          <h3>Email</h3>
+          <p class="big"><a href={`mailto:${links.email}`}>{links.email}</a></p>
+          <h3 class="h-small">Phone</h3>
+          <ul class="plain">{links.phones.map((p) => <li><a href={`tel:+1${p.replaceAll('-', '')}`}>{p}</a></li>)}</ul>
+        </div>
+      </div>
+      <div>
+        <h2>Looking for something specific?</h2>
+        <dl class="shortcuts" data-stagger>
+          {shortcuts.map((s) => (
+            <div>
+              <dt>{s.need}</dt>
+              <dd><a class="go" href={s.href}>{s.cta}</a></dd>
+            </div>
+          ))}
+        </dl>
+        <h2 class="follow-h">Follow ChemQuest</h2>
+        <ul class="socials" data-stagger>
+          {socials.map((s) => (
+            <li>
+              <a href={s.href}><strong>{s.name}</strong>{s.handle && <span class="muted"> {s.handle}</span>}</a>
+              {s.note && <p class="muted">{s.note}</p>}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .reach { display: grid; gap: 2.5rem; align-items: start; }
+  @media (min-width: 56rem) { .reach { grid-template-columns: 22rem 1fr; gap: 4rem; } }
+  .cards { display: grid; gap: 1.5rem; }
+  .card { border: 1px solid var(--rule); border-radius: 10px; background: var(--surface); padding: 1.5rem; }
+  .card h3 { font-size: 1.35rem; margin-bottom: 0.25rem; }
+  .card .h-small { margin-top: 1.25rem; }
+  .card.discord { position: relative; background: var(--purple); color: #fff; border-color: var(--purple); }
+  .members { font-weight: 700; }
+  .card.discord p { margin-bottom: 1rem; }
+  .dlogo { position: absolute; top: 1.1rem; right: 1.1rem; width: 2.5rem; fill: #fff; opacity: 0.9; }
+  .big { font-size: 1.25rem; font-weight: 700; overflow-wrap: anywhere; margin: 0; }
+  .plain { list-style: none; margin: 0; padding: 0; }
+
+  .shortcuts { margin: 1rem 0 0; }
+  .shortcuts div { display: grid; gap: 0.1rem 1.5rem; padding-block: 0.75rem; border-top: 1px solid var(--line); }
+  .shortcuts div:first-child { border-top: 0; padding-top: 0; }
+  .shortcuts dt { font-weight: 700; }
+  .shortcuts dd { margin: 0; }
+  @media (min-width: 40rem) { .shortcuts div { grid-template-columns: 1fr 1fr; } }
+
+  .follow-h { margin-top: 2.5rem; }
+  .socials { list-style: none; padding: 0; margin: 1rem 0 0; display: grid; gap: 1rem 2rem; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); }
+  .socials a { font-size: 1.15rem; }
+  .socials p { margin: 0.15rem 0 0; font-size: 1rem; }
+</style>

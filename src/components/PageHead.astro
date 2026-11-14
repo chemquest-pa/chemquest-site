@@ -1,0 +1,24 @@
+---
+// Graph-paper page header, shared by every page except Home. Each page gets its own drawing,
+// which plays when clicked.
+import Doodle, { type DoodleKind } from './Doodle.astro';
+interface Props { title: string; doodle: DoodleKind }
+const { title, doodle } = Astro.props;
+---
+<header class="page-head graph">
+  <div class="wrap head-grid">
+    <div>
+      <h1>{title}</h1>
+      <p class="lede"><slot /></p>
+    </div>
+    <Doodle kind={doodle} class="head-doodle" />
+  </div>
+</header>
+
+<style>
+  .page-head { border-bottom: 1px solid var(--line); padding-block: 2.5rem 2.25rem; }
+  .head-grid { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
+  .lede { margin: 0; }
+  .page-head :global(.head-doodle) { flex: none; width: 5.5rem; }
+  @media (min-width: 40rem) { .page-head :global(.head-doodle) { width: 9rem; margin-right: 1rem; } }
+</style>

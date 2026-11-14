@@ -1,0 +1,77 @@
+---
+import { Image } from 'astro:assets';
+import { render, type CollectionEntry } from 'astro:content';
+import { longDate } from '../site';
+import PhotoPlaceholder from './PhotoPlaceholder.astro';
+
+interface Props { event: CollectionEntry<'events'>; level?: 'h2' | 'h3' }
+const { event, level = 'h3' } = Astro.props;
+const e = event.data;
+const { Content } = await render(event);
+const Heading = level;
+// Days until the event, counted in Eastern time. Worked out when the site is built and
+// again in the visitor's browser, so it's right even if the site hasn't been rebuilt today.
+const iso = e.date.toISOString().slice(0, 10);
+const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+const days = Math.round((Date.parse(iso) - Date.parse(today)) / 864e5);
+const countdown = days <= 0 ? 'Today' : days === 1 ? 'Tomorrow' : `In ${days} days`;
+---
+<article class="upcoming">
+  <p class="date">
+    <span>{longDate(e.date)}</span>
+    {e.time && <span class="time"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" /><path d="M8 4.5V8l2.5 1.5" /></svg>{e.time}</span>}
+    <span class="countdown" data-date={iso}>{countdown}</span>
+  </p>
+  <div class="body">
+    <div class="info">
+      <Heading class="title">{e.title}</Heading>
+      <dl>
+        <div><dt>Where</dt><dd>{e.place}{e.address && <><br /><span class="muted">{e.address}</span></>}</dd></div>
+        {e.ages && <div><dt>Who</dt><dd>{e.ages}</dd></div>}
+        <div><dt>Cost</dt><dd>{e.cost}</dd></div>
+      </dl>
+      <Content />
+      {e.signup && (
+        <p class="actions"><a class="btn btn-primary" href={e.signup}>RSVP for this event</a></p>
+      )}
+    </div>
+    {e.photo ? (
+      <div class:list={['photo', { flyer: e.photoIsFlyer }]}>
+        <Image src={e.photo} alt={e.photoAlt ?? ''} widths={[320, 480, 720, 2000]} sizes="(min-width: 48rem) 20rem, 100vw" />
+        <p class="zoom-hint" aria-hidden="true"><span class="on-mouse">Click</span><span class="on-touch">Tap</span> the flyer to see it bigger</p>
+      </div>
+    ) : <PhotoPlaceholder label={`${e.title} flyer`} />}
+  </div>
+</article>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.countdown[data-date]').forEach((el) => {
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+    const days = Math.round((Date.parse(el.dataset.date!) - Date.parse(today)) / 864e5);
+    el.textContent = days <= 0 ? 'Today' : days === 1 ? 'Tomorrow' : `In ${days} days`;
+  });
+</script>
+
+<style>
+  .upcoming { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; }
+  .date { margin: 0; padding: 0.6rem 1.25rem; display: flex; flex-wrap: wrap; align-items: center; gap: 0.2rem 1.25rem; background: var(--green); color: var(--on-green); font-weight: 700; }
+  .time { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .time svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+  .countdown { margin-left: auto; padding: 0.1rem 0.7rem; border-radius: 4px; background: var(--yellow); color: var(--text); }
+  .body { display: grid; gap: 1.5rem; padding: 1.25rem; }
+  .title { margin-bottom: 0.75rem; font-size: 1.5rem; }
+  dl { margin: 0 0 1rem; display: grid; gap: 0.4rem; }
+  dl div { display: grid; grid-template-columns: 4.5rem 1fr; gap: 0.5rem; }
+  dt { font-weight: 700; color: var(--muted); }
+  dd { margin: 0; }
+  .actions { margin: 1.25rem 0 0; }
+  .photo { display: block; align-self: start; }
+  .photo img { border-radius: 4px; width: 100%; }
+  .zoom-hint { margin: 0.4rem 0 0; text-align: center; color: var(--muted); font-size: 0.9rem; }
+  .on-touch { display: none; }
+  @media (hover: none) { .on-touch { display: inline; } .on-mouse { display: none; } }
+  .flyer img { max-height: 26rem; width: auto; margin-inline: auto; border: 1px solid var(--line); }
+  @media (min-width: 48rem) {
+    .body { grid-template-columns: 1fr 20rem; padding: 1.5rem; gap: 2rem; }
+  }
+</style>

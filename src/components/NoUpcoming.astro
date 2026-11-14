@@ -1,0 +1,48 @@
+---
+// Shown on the homepage and Events page while no future event is scheduled.
+import { getCollection } from 'astro:content';
+import { links, discordIcon } from '../site';
+const [experiment] = (await getCollection('experiments')).sort((a, b) => b.data.month.localeCompare(a.data.month));
+---
+<div class="none">
+  <div class="msg">
+    <h3>The next event is in the works</h3>
+    <p>We announce new events on our Discord and in our newsletter.</p>
+    <p class="actions">
+      <a class="btn btn-discord" href={links.discord}><svg viewBox="0 0 24 24" aria-hidden="true"><path d={discordIcon} /></svg>Join our Discord</a>
+      <a class="btn btn-secondary" href={links.newsletterSubscribe}>Get the newsletter</a>
+    </p>
+  </div>
+  <div class="meanwhile">
+    <h3>In the meantime</h3>
+    <dl>
+      {experiment && (
+        <div>
+          <dt>Try an experiment at home</dt>
+          <dd>This month it's a {experiment.data.title.toLowerCase()}. <a href="/at-home/">See the steps</a></dd>
+        </div>
+      )}
+      <div>
+        <dt>Want an event near you?</dt>
+        <dd>Libraries, schools, and learning centers can <a href={`mailto:${links.email}?subject=${encodeURIComponent('Hosting a ChemQuest event')}`}>ask us to host one</a>.</dd>
+      </div>
+      <div>
+        <dt>See what we've been up to</dt>
+        <dd><a href="/gallery/">Photos from past events</a></dd>
+      </div>
+    </dl>
+  </div>
+</div>
+
+<style>
+  .none { display: grid; gap: 1.5rem 3rem; background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 1.5rem; }
+  @media (min-width: 56rem) { .none { grid-template-columns: 1.1fr 1fr; padding: 2rem; } }
+  h3 { font-size: 1.4rem; margin-bottom: 0.35rem; }
+  .msg p { max-width: 32rem; }
+  .actions { margin: 1rem 0 0; display: flex; flex-wrap: wrap; gap: 0.75rem; }
+  .meanwhile h3 { font-size: 1.15rem; color: var(--muted); }
+  dl { margin: 0; }
+  dl div { padding-block: 0.6rem; border-top: 1px solid var(--line); }
+  dt { font-weight: 700; }
+  dd { margin: 0; }
+</style>

@@ -1,0 +1,68 @@
+---
+import { Image } from 'astro:assets';
+import { render, type CollectionEntry } from 'astro:content';
+import { shortDate } from '../site';
+import PhotoPlaceholder from './PhotoPlaceholder.astro';
+
+interface Props { event: CollectionEntry<'events'>; level?: 'h3' | 'h4' }
+const { event, level = 'h3' } = Astro.props;
+const e = event.data;
+const { Content } = await render(event);
+const Heading = level;
+const month = e.date.toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short' });
+const day = e.date.getUTCDate();
+---
+<article class="past" data-reveal>
+  <!-- The date sits in a hexagon, the shape from the ChemQuest logo. -->
+  <time class="hexdate" datetime={e.date.toISOString().slice(0, 10)}>
+    <svg class="hex" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,3 91,26.5 91,73.5 50,97 9,73.5 9,26.5" /></svg>
+    <span class="sr-only">{shortDate(e.date)}</span>
+    <span class="d" aria-hidden="true">{day}</span>
+    <span class="m" aria-hidden="true">{month}</span>
+  </time>
+  <div class="frame">
+    {e.photo ? (
+      <Image src={e.photo} alt={e.photoAlt ?? ''} widths={[280, 420, 560, 2000]} sizes="(min-width: 40rem) 15rem, 100vw"
+        class:list={['pic', { flyer: e.photoIsFlyer }]} />
+    ) : <PhotoPlaceholder label={`${e.title}, ${shortDate(e.date)}`} />}
+  </div>
+  <div>
+    <p class="where">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 14.5s4.5-4.2 4.5-7.7a4.5 4.5 0 0 0-9 0c0 3.5 4.5 7.7 4.5 7.7z" /><circle cx="8" cy="6.8" r="1.6" /></svg>
+      {e.place}
+    </p>
+    <Heading class="title">{e.title}</Heading>
+    <Content />
+  </div>
+</article>
+
+<style>
+  .past { position: relative; display: grid; gap: 1rem; padding-block: 1.5rem; border-top: 1px solid var(--line); }
+  .frame { overflow: hidden; border-radius: 4px; align-self: start; }
+  .pic { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+  .pic.flyer { object-fit: contain; background: var(--surface); }
+
+  .hexdate {
+    position: absolute; left: -4.6rem; top: 1.25rem; width: 3.6rem; height: 3.6rem;
+    display: grid; place-content: center; justify-items: center; line-height: 1; text-align: center;
+  }
+  .hex { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .hex polygon { fill: var(--surface); stroke: var(--text); stroke-width: 3; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+  .past:nth-of-type(3n + 1) .hex polygon { fill: var(--green-tint); }
+  .past:nth-of-type(3n + 2) .hex polygon { fill: var(--purple-tint); }
+  .past:nth-of-type(3n) .hex polygon { fill: var(--yellow-tint); }
+  .d { position: relative; font-family: var(--slab); font-weight: 700; font-size: 1.35rem; font-variant-numeric: lining-nums; }
+  .m { position: relative; font-size: 0.75rem; font-weight: 600; color: var(--muted); margin-top: 0.1rem; }
+
+  .where { margin: 0 0 0.3rem; display: flex; align-items: center; gap: 0.35rem; font-size: 0.95rem; color: var(--muted); }
+  .where svg { width: 1rem; height: 1rem; flex: none; fill: none; stroke: currentColor; stroke-width: 1.6; }
+  .title { margin-bottom: 0.4rem; }
+  .past :global(p:last-child) { margin-bottom: 0; }
+  @media (min-width: 40rem) {
+    .past { grid-template-columns: 15rem 1fr; gap: 1.5rem; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .pic { transition: scale 600ms var(--ease), rotate 600ms var(--ease); }
+    .past:hover .pic { scale: 1.04; rotate: 0.6deg; }
+  }
+</style>

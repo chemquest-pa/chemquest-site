@@ -1,0 +1,56 @@
+# Copies new newsletter issues from beehiiv into the website, saves them to GitHub, and publishes.
+# Runs on its own on Sunday night and Monday afternoon (issues go out on Sundays), and you can run it
+# by hand from the Actions tab ("Import newsletter" > "Run workflow").
+#
+# It publishes in the same run because GitHub doesn't start the "Publish website" job for changes
+# that a job saves itself. It uses the same two Cloudflare secrets as deploy.yml.
+#
+# After it runs, check the new issue's file in src/content/newsletter/ for its title and topic (EDITING.md).
+name: Import newsletter
+
+on:
+  schedule:
+    - cron: '17 2 * * 1'   # Sunday about 9:15 PM Eastern (Monday 02:17 UTC; off the hour, when GitHub is less busy)
+    - cron: '17 19 * * 1'  # Monday 2 PM Eastern
+  workflow_dispatch:
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+permissions:
+  contents: write # to save the imported issues
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run newsletter
+      - name: Save new issues
+        id: save
+        run: |
+          git add src/content/newsletter src/assets/newsletter
+          if git diff --cached --quiet; then
+            echo "No new issues."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "Import new newsletter issues from beehiiv"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.save.outputs.changed == 'true'
+        run: npm run build
+      - if: steps.save.outputs.changed == 'true'
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=chemquest --branch=main

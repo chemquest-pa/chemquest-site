@@ -1,0 +1,25 @@
+---
+// Stand-in for a photo we don't have yet. Swap it for an <Image> once the photo exists.
+interface Props { label: string; ratio?: string; class?: string }
+const { label, ratio = '4 / 3', class: cls } = Astro.props;
+---
+<div class:list={['ph', cls]} style={`aspect-ratio: ${ratio}`} role="img" aria-label={`Photo coming soon: ${label}`}>
+  <svg viewBox="0 0 48 48" width="40" height="40" aria-hidden="true">
+    <rect x="5" y="13" width="38" height="27" rx="4" fill="none" stroke="currentColor" stroke-width="2.5" />
+    <path d="M17 13l3-5h8l3 5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" />
+    <circle cx="24" cy="26" r="7" fill="none" stroke="currentColor" stroke-width="2.5" />
+  </svg>
+  <span class="ph-title">Photo coming soon</span>
+  <span class="ph-label">{label}</span>
+</div>
+
+<style>
+  .ph {
+    display: grid; place-content: center; justify-items: center; gap: 0.2rem; padding: 1rem;
+    width: 100%; text-align: center; color: var(--muted);
+    background: var(--surface) var(--graph);
+    border: 2px dashed var(--line); border-radius: 6px;
+  }
+  .ph-title { font-weight: 700; color: var(--text); }
+  .ph-label { font-size: 0.9rem; max-width: 22ch; }
+</style>

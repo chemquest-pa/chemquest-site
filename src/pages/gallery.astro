@@ -1,0 +1,130 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import PhotoPlaceholder from '../components/PhotoPlaceholder.astro';
+import { getEvents, shortDate } from '../site';
+import kidsAtTable from '../assets/photos/kids-at-experiment-table.jpg';
+import kidsSmiling from '../assets/photos/kids-smiling.jpg';
+import demoCircle from '../assets/photos/demo-circle.png';
+import experimentTable from '../assets/photos/experiment-table.png';
+import kidsWithBag from '../assets/photos/kids-with-bag.webp';
+import fairBoard from '../assets/photos/science-fair-board.png';
+import storyCircle from '../assets/photos/story-circle.avif';
+import volunteerGroup from '../assets/photos/volunteer-group.png';
+import withHost from '../assets/photos/volunteers-with-host.png';
+
+// Extra photos for an event go in a folder named after its event file, for example
+// src/assets/gallery/2025-06-28-brandywine-hundred/. They show up here automatically.
+const folders = import.meta.glob<{ default: ImageMetadata }>('../assets/gallery/*/*.{jpg,jpeg,png,webp,avif}', { eager: true });
+// A folder can also hold captions.json, matching each file name to a short description for screen readers.
+const captionFiles = import.meta.glob<Record<string, string>>('../assets/gallery/*/captions.json', { eager: true, import: 'default' });
+const extras = (id: string) => {
+  const captions = Object.entries(captionFiles).find(([path]) => path.split('/').at(-2) === id)?.[1] ?? {};
+  return Object.entries(folders)
+    .filter(([path]) => path.split('/').at(-2) === id)
+    .map(([path, mod]) => ({ src: mod.default, alt: captions[path.split('/').at(-1)!] }));
+};
+
+const { past } = await getEvents();
+const sections = past.map((e) => ({
+  title: e.data.title,
+  when: `${shortDate(e.data.date)}, ${e.data.place}`,
+  photos: [
+    ...(e.data.photo && !e.data.photoIsFlyer ? [{ src: e.data.photo, alt: e.data.photoAlt ?? '' }] : []),
+    ...extras(e.id).map((x) => ({ src: x.src, alt: x.alt ?? `A photo from ${e.data.title}, ${shortDate(e.data.date)}.` })),
+  ],
+}));
+
+// Photos from events where we don't know exactly which one they came from.
+const more = [
+  { src: kidsAtTable, alt: 'Two girls smiling at an experiment table during a ChemQuest event.' },
+  { src: experimentTable, alt: 'Kids holding up bags of homemade ice cream at a long experiment table.' },
+  { src: demoCircle, alt: "Kids sitting in a circle watching a volunteer's demonstration." },
+  { src: kidsWithBag, alt: 'Kids grinning and holding up the bag from their experiment.' },
+  { src: fairBoard, alt: 'A young student presenting a science fair board to a judge.' },
+  { src: storyCircle, alt: "Kids sitting on the floor in a circle around a ChemQuest volunteer's demonstration." },
+  { src: kidsSmiling, alt: 'Kids grinning and posing for the camera at an event.' },
+  { src: volunteerGroup, alt: 'A large group of ChemQuest volunteers posing together at an event.' },
+  { src: withHost, alt: 'Four ChemQuest volunteers in matching shirts standing with a library host.' },
+];
+---
+<Base title="Photo gallery" description="Photos from ChemQuest's free science events for kids.">
+  <PageHead title="Photo gallery" doodle="magnifier">
+    Photos from our events, newest first. Click any photo to see it bigger, then use the arrow keys or swipe to flip through the rest.
+  </PageHead>
+
+  <div class="wrap section">
+    <div class="events">
+    {sections.map((s) => (
+      <section class:list={['event', { wide: s.photos.length > 2 }]} aria-label={s.title}>
+        <div class="event-head">
+          <h2>{s.title}</h2>
+          <p class="muted">{s.when}</p>
+        </div>
+        {s.photos.length ? (
+          <ul class="grid" data-stagger>
+            {s.photos.map((p) => (
+              <li><Image src={p.src} alt={p.alt} widths={[320, 480, 720, 1600]} sizes="(min-width: 56rem) 22rem, (min-width: 36rem) 45vw, 100vw" /></li>
+            ))}
+          </ul>
+        ) : (
+          <ul class="grid">
+            <li><PhotoPlaceholder label={`Photos from ${s.title}`} /></li>
+          </ul>
+        )}
+      </section>
+    ))}
+    </div>
+
+    <section class="event wide more" aria-labelledby="more-h">
+      <div class="event-head">
+        <h2 id="more-h">More moments</h2>
+        <p class="muted">From events over the years</p>
+      </div>
+      <ul class="grid scatter" data-stagger>
+        {more.map((p, i) => (
+          <li class="taped" style={`--tilt:${[-2, 1.5, -1, 2.5, -1.5, 1, -2.5, 2, -1][i % 9]}deg`}><Image src={p.src} alt={p.alt} widths={[320, 480, 720, 1600]} sizes="(min-width: 56rem) 22rem, (min-width: 36rem) 45vw, 100vw" /></li>
+        ))}
+      </ul>
+    </section>
+  </div>
+</Base>
+
+<style>
+  /* Events sit side by side; one with lots of photos takes the full width. */
+  .events { display: grid; gap: 2.5rem 1.5rem; grid-template-columns: repeat(auto-fill, minmax(min(17rem, 100%), 1fr)); }
+  .event.wide { grid-column: 1 / -1; }
+  .more { margin-top: 3rem; padding-top: 2.5rem; border-top: 1px solid var(--line); }
+  .event-head { margin-bottom: 0.75rem; }
+  .event-head h2 { margin: 0; font-size: 1.35rem; }
+  .event-head p { margin: 0; font-size: 0.95rem; }
+  .wide .event-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.1rem 1rem; }
+  .wide .event-head h2 { font-size: 1.6rem; }
+  .grid { list-style: none; padding: 0; margin: 0; }
+  .grid li { overflow: hidden; border-radius: 4px; }
+  .grid img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+  /* Wide sections keep each photo's own shape and stack them like a contact sheet. */
+  .wide .grid { columns: 3 16rem; column-gap: 0.75rem; }
+  .wide .grid li { break-inside: avoid; margin-bottom: 0.75rem; }
+  .wide .grid img { aspect-ratio: auto; }
+  /* "More moments": a pile of photos taped in at different angles. */
+  .wide .grid.scatter { columns: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(15rem, 100%), 1fr)); gap: 1.5rem 1.25rem; padding-inline: 0.5rem; }
+  .scatter li.taped { overflow: visible; border-radius: 3px; margin: 0.9rem 0 0; padding: 0.45rem 0.45rem 1.2rem; }
+  .scatter li.taped img { aspect-ratio: 4 / 3; object-fit: cover; }
+  .scatter li.taped::before { width: 4.5rem; height: 1.3rem; top: -0.75rem; }
+  @media (max-width: 39.99rem) {
+    /* Phones: two photos side by side, so neither the event photos nor the pile become one long column. */
+    .wide .grid:not(.scatter) { columns: 2; column-gap: 0.5rem; }
+    .wide .grid:not(.scatter) li { margin-bottom: 0.5rem; }
+    .wide .grid.scatter { grid-template-columns: repeat(2, 1fr); gap: 1rem 0.75rem; padding-inline: 0.25rem; }
+    .scatter li.taped { padding: 0.3rem 0.3rem 0.8rem; margin-top: 0.7rem; }
+    .scatter li.taped::before { width: 3rem; height: 1rem; top: -0.55rem; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .grid img { transition: scale 600ms var(--ease); }
+    .grid li:not(.taped):hover img { scale: 1.04; }
+    .scatter li.taped:hover { z-index: 1; }
+  }
+</style>

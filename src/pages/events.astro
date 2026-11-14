@@ -1,0 +1,56 @@
+---
+import Base from '../layouts/Base.astro';
+import UpcomingEvent from '../components/UpcomingEvent.astro';
+import PastEvent from '../components/PastEvent.astro';
+import NoUpcoming from '../components/NoUpcoming.astro';
+import PageHead from '../components/PageHead.astro';
+import { getEvents, links } from '../site';
+
+const { upcoming, past } = await getEvents();
+const years = Map.groupBy(past, (e) => e.data.date.getUTCFullYear());
+---
+<Base title="Events" description="Free, hands-on science events for kids in the Glen Mills, PA area. See what's next and RSVP.">
+  <PageHead title="Events" doodle="tubes">Free, hands-on science afternoons for kids, run by our high school volunteers. Each event lists the ages it's for and how to RSVP.</PageHead>
+  <div class="wrap section">
+
+    <section aria-labelledby="upcoming" class="block">
+      <h2 id="upcoming">Upcoming</h2>
+      <div data-reveal>
+        {upcoming.length ? (
+          <div class="stack">{upcoming.map((event) => <UpcomingEvent event={event} />)}</div>
+        ) : <NoUpcoming />}
+      </div>
+      <p class="host muted">See photos from past events in the <a href="/gallery/">photo gallery</a>. Want ChemQuest at your library, school, or center? Email <a href={`mailto:${links.email}?subject=${encodeURIComponent('Hosting a ChemQuest event')}`}>{links.email}</a>.</p>
+    </section>
+
+    <section aria-labelledby="past" class="block">
+      <h2 id="past">Past events</h2>
+      <div class="timeline">
+        {[...years].map(([year, events]) => (
+          <section aria-label={String(year)}>
+            <h3 class="year">{year}</h3>
+            {events.map((event) => <PastEvent event={event} level="h4" />)}
+          </section>
+        ))}
+      </div>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .block { margin-top: 0; }
+  .block + .block { margin-top: 3rem; }
+  .stack { display: grid; gap: 1.5rem; }
+  .host { margin-top: 1rem; font-size: 1rem; }
+
+  /* Past events hang off a dashed line, each with its date in a hexagon. */
+  .timeline { position: relative; padding-left: 4.6rem; }
+  .timeline::before { content: ''; position: absolute; left: 1.8rem; top: 0.5rem; bottom: 0; border-left: 2px dashed var(--rule); }
+  .year {
+    position: relative; display: inline-block; margin: 1.5rem 0 0.25rem -4.6rem; padding: 0.15rem 0.8rem;
+    font-size: 1.15rem; color: var(--on-green); background: var(--green); border-radius: 4px;
+  }
+  .timeline section:first-child .year { margin-top: 0.5rem; }
+  .year + :global(.past) { border-top: 0; }
+  :global(.past h4) { font-family: var(--slab); font-size: 1.3rem; font-weight: 600; line-height: 1.2; }
+</style>

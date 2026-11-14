@@ -1,0 +1,463 @@
+---
+import '../styles/global.css';
+import { Image } from 'astro:assets';
+import logoColor from '../assets/logo-color.png';
+import { links, nav, discordIcon } from '../site';
+
+interface Props { title: string; description: string }
+const { title, description } = Astro.props;
+const path = Astro.url.pathname;
+const pageTitle = title === 'Home' ? 'ChemQuest | Free STEM events for kids' : `${title} | ChemQuest`;
+const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+// The picture shown when someone shares a link to the site (texts, Discord, Instagram, etc.).
+const shareImage = new URL('/share.png', Astro.site ?? Astro.url).href;
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{pageTitle}</title>
+  <meta name="description" content={description} />
+  <!-- The one true address of this page, so search engines ignore copies at preview addresses (like abc123.chemquest.pages.dev). -->
+  <link rel="canonical" href={new URL(path, Astro.site ?? Astro.url).href} />
+  <link rel="icon" href="/favicon.png" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="ChemQuest" />
+  <meta property="og:title" content={pageTitle} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content={shareImage} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="ChemQuest: free, hands-on science events for kids, run by high school students." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <!-- Pages fade into each other. This sits in the page itself (not the stylesheet) so the browser sees it right away. -->
+  <style is:inline>@media (prefers-reduced-motion: no-preference) { @view-transition { navigation: auto; } }</style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap bar">
+      <a href="/" class="brand" aria-label="ChemQuest home">
+        <Image src={logoColor} alt="" class="logo" height={60} densities={[1, 2]} loading="eager" />
+      </a>
+      <button class="menu-btn" popovertarget="site-menu" aria-label="Open menu">
+        <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M2 5h18M2 11h18M2 17h18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+        Menu
+      </button>
+      <div id="site-menu" popover class="menu">
+        <div class="menu-head">
+          <p class="menu-title">Menu</p>
+          <button class="menu-close" popovertarget="site-menu" popovertargetaction="hide">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3 3 13" /></svg>
+            Close
+          </button>
+        </div>
+        <nav aria-label="Main">
+          <ul class="top">
+            {nav.map((item) => (
+              <li class:list={{ 'has-sub': item.children }}>
+                <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                  {item.label}
+                  {item.children && <svg class="caret" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" /></svg>}
+                </a>
+                {item.children && (
+                  <div class="sub">
+                    <ul>
+                      {item.children.map((c) => (
+                        <li>
+                          <a href={c.href}>
+                            {c.label}
+                            {c.external && <svg class="ext" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2h6v6M10 2 3 9" /></svg>}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <div class="menu-foot">
+          <a class="btn btn-discord head-discord" href={links.discord}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d={discordIcon} /></svg>
+            Join our Discord
+          </a>
+          <p class="menu-mail">Questions? Email <a href={`mailto:${links.email}`}>{links.email}</a></p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main"><slot /></main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-grid">
+      <div class="footer-about">
+        <p class="footer-name">ChemQuest</p>
+        <p>A student-run 501(c)(3) nonprofit from Glen Mills, PA. Our events are free for every family.</p>
+      </div>
+      <div class="footer-contact">
+        <h2 class="footer-h">Contact</h2>
+        <ul class="plain">
+          <li><a href={`mailto:${links.email}`}>{links.email}</a></li>
+          {links.phones.map((p) => <li><a href={`tel:+1${p.replaceAll('-', '')}`}>{p}</a></li>)}
+        </ul>
+      </div>
+      <div>
+        <h2 class="footer-h">Follow</h2>
+        <ul class="plain">
+          <li><a href={links.discord}>Discord</a></li>
+          <li><a href={links.instagram}>Instagram</a></li>
+          <li><a href={links.facebook}>Facebook</a></li>
+          <li><a href={links.linkedin}>LinkedIn</a></li>
+          <li><a href={links.newsletter}>Newsletter</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2 class="footer-h">More</h2>
+        <ul class="plain">
+          <li><a href="/gallery/">Photo gallery</a></li>
+          <li><a href="/at-home/">Try at home</a></li>
+          <li><a href="/about/team/">Our team</a></li>
+          <li><a href="/about/alumni/">Alumni</a></li>
+          <li><a href="/sponsor/#donate-h">Donate</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+  <dialog id="lightbox" class="lightbox" aria-label="Enlarged photo">
+    <figure>
+      <img alt="" />
+      <figcaption class="lb-count"></figcaption>
+    </figure>
+    <button class="lb-btn lb-close" type="button">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3 3 13" /></svg>
+      Close
+    </button>
+    <button class="lb-btn lb-prev" type="button" aria-label="Previous photo">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5" /></svg>
+    </button>
+    <button class="lb-btn lb-next" type="button" aria-label="Next photo">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5" /></svg>
+    </button>
+  </dialog>
+
+  <script>
+    const motionOK = matchMedia('(prefers-reduced-motion: no-preference)').matches;
+
+    // Links to other websites (forms, Discord, the newsletter…) open in a new tab.
+    document.querySelectorAll<HTMLAnchorElement>('a[href^="http"]').forEach((a) => {
+      if (a.origin === location.origin) return;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.insertAdjacentHTML('beforeend', '<span class="sr-only"> (opens in a new tab)</span>');
+    });
+
+    // Live Discord member counts: refresh any [data-discord] number from the invite link.
+    const counts = document.querySelectorAll<HTMLElement>('[data-discord]');
+    const invite = document.querySelector<HTMLAnchorElement>('a[href*="discord.gg/"]')?.href.split('/').pop();
+    if (counts.length && invite) {
+      fetch(`https://discord.com/api/v10/invites/${invite}?with_counts=true`)
+        .then((r) => (r.ok ? r.json() : Promise.reject()))
+        .then((j) => counts.forEach((el) => {
+          const n = String(j.approximate_member_count);
+          if (el.dataset.count) el.dataset.count = n;
+          el.textContent = n;
+        }))
+        .catch(() => {});
+    }
+
+    // Phone menu: close it when keyboard focus moves past the last item.
+    const menu = document.getElementById('site-menu')!;
+    menu.addEventListener('focusout', (e) => {
+      if (menu.matches(':popover-open') && !menu.contains(e.relatedTarget as Node)) menu.hidePopover();
+    });
+
+    // Laptop dropdowns open on hover or focus (pure CSS). Escape tucks the open one away.
+    document.querySelectorAll<HTMLElement>('.has-sub').forEach((li) => {
+      li.addEventListener('keydown', (e) => { if (e.key === 'Escape') li.classList.add('hush'); });
+      li.addEventListener('pointerleave', () => li.classList.remove('hush'));
+      li.addEventListener('focusout', (e) => { if (!li.contains(e.relatedTarget as Node)) li.classList.remove('hush'); });
+    });
+
+    if (motionOK) {
+      // The lab drawings trace themselves once as they scroll into view. Nothing else animates in.
+      document.documentElement.classList.add('js-reveal');
+      const io = new IntersectionObserver((entries) => {
+        for (const e of entries) if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
+      }, { rootMargin: '0px 0px -8% 0px' });
+      document.querySelectorAll('[data-reveal]').forEach((el) => io.observe(el));
+
+      // play(): add the "play" class, and take it off once every animation it started has finished,
+      // so a hover or click animation always runs to the end instead of snapping back halfway.
+      const play = (el: HTMLElement) => {
+        if (el.classList.contains('play')) return;
+        el.classList.add('play');
+        const runs = el.getAnimations({ subtree: true }).filter((a) => a.effect?.getComputedTiming().iterations !== Infinity);
+        Promise.all(runs.map((a) => a.finished.catch(() => {}))).then(() => el.classList.remove('play'));
+      };
+      // Drawings are toys: click one and it does its thing (see Doodle.astro).
+      document.querySelectorAll<HTMLElement>('.toy').forEach((el) => el.addEventListener('click', () => play(el)));
+      // [data-play] elements play when the pointer arrives (the team badges).
+      document.querySelectorAll<HTMLElement>('[data-play]').forEach((el) => el.addEventListener('pointerenter', () => play(el)));
+
+    }
+
+    // Lightbox: click (or press Enter on) any photo to see it big, over a blurred page.
+    // Arrow keys, the on-screen arrows, or a swipe move between the photos on the page.
+    const box = document.getElementById('lightbox') as HTMLDialogElement;
+    const big = box.querySelector('img')!;
+    const count = box.querySelector('.lb-count')!;
+    // Small decorative pictures (empty alt, like the past-officer thumbnails) aren't enlarged.
+    const photos = [...document.querySelectorAll<HTMLImageElement>('main img:not(a img):not([alt=""])')];
+    let current = -1;
+    const inView = (el: Element) => { const r = el.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight; };
+    const morph = (change: () => void, from: HTMLElement, to: HTMLElement) => {
+      if (!motionOK || !document.startViewTransition || !inView(from === big ? to : from)) return change();
+      from.style.viewTransitionName = 'zoom';
+      document.startViewTransition(() => {
+        from.style.viewTransitionName = '';
+        change();
+        to.style.viewTransitionName = 'zoom';
+      }).finished.finally(() => { to.style.viewTransitionName = ''; });
+    };
+    const show = (i: number) => {
+      const img = photos[i];
+      current = i;
+      const widest = Math.max(img.naturalWidth, ...[...img.srcset.matchAll(/(\d+)w/g)].map((m) => +m[1]));
+      const ratio = img.naturalWidth / img.naturalHeight;
+      // Start with the copy already on screen, then swap in the sharpest one once it has loaded.
+      big.src = img.currentSrc || img.src;
+      big.alt = img.alt;
+      big.style.aspectRatio = String(ratio);
+      big.style.width = `min(94vw, ${widest}px, calc(78vh * ${ratio}))`;
+      count.textContent = photos.length > 1 ? `${i + 1} of ${photos.length}` : '';
+      if (img.srcset) {
+        const hi = new Image();
+        hi.sizes = `${Math.round(Math.min(innerWidth * 0.94, widest))}px`;
+        hi.srcset = img.srcset;
+        hi.decode().then(() => { if (current === i) big.src = hi.currentSrc; }).catch(() => {});
+      }
+    };
+    const step = (d: number) => { if (photos.length > 1) show((current + d + photos.length) % photos.length); };
+    const close = () => {
+      if (!box.open) return;
+      const back = photos[current];
+      current = -1;
+      morph(() => box.close(), big, back);
+    };
+    box.classList.toggle('single', photos.length < 2);
+    photos.forEach((img, i) => {
+      img.dataset.zoom = '';
+      img.tabIndex = 0;
+      img.setAttribute('role', 'button');
+      img.setAttribute('aria-label', `Enlarge photo: ${img.alt}`);
+      const open = () => { show(i); morph(() => box.showModal(), img, big); };
+      img.addEventListener('click', open);
+      img.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+    });
+    box.querySelector('.lb-prev')!.addEventListener('click', (e) => { e.stopPropagation(); step(-1); });
+    box.querySelector('.lb-next')!.addEventListener('click', (e) => { e.stopPropagation(); step(1); });
+    box.addEventListener('click', close);
+    box.addEventListener('cancel', (e) => { e.preventDefault(); close(); });
+    box.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') step(1);
+      if (e.key === 'ArrowLeft') step(-1);
+    });
+    let touchX = 0;
+    box.addEventListener('touchstart', (e) => { touchX = e.touches[0].clientX; }, { passive: true });
+    box.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].clientX - touchX;
+      if (Math.abs(dx) > 50) { e.preventDefault(); step(dx < 0 ? 1 : -1); }
+    });
+  </script>
+</body>
+</html>
+
+<style>
+  .site-header { position: sticky; top: 0; z-index: 20; border-bottom: 1px solid var(--line); background: var(--bg); view-transition-name: site-header; }
+  .bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 4.5rem; }
+  .brand { display: flex; align-items: center; text-decoration: none; color: var(--text); }
+  .logo { height: 60px; width: auto; }
+
+  .menu-btn, .menu-close {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    font: inherit; font-weight: 700; color: var(--text);
+    background: var(--surface); border: 1px solid var(--line); border-radius: 6px;
+    padding: 0.5rem 0.8rem; cursor: pointer;
+  }
+  .menu-close svg { width: 0.9rem; height: 0.9rem; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
+
+  /* Phone & tablet: the menu is a native popover sheet on lab-notebook paper (Esc and tap-outside close it).
+     Each section is a row, with its sub-pages listed underneath. */
+  .menu {
+    inset: 0 0 auto auto; margin: 0; height: 100dvh; width: min(23rem, 100%); overflow-y: auto;
+    border: 0; border-left: 1px solid var(--rule);
+    background: var(--bg) var(--graph); color: var(--text);
+    padding: 0;
+    flex-direction: column;
+  }
+  .menu:popover-open { display: flex; }
+  .menu::backdrop { background: rgb(43 32 25 / 0.5); }
+  .menu ul { list-style: none; margin: 0; padding: 0; }
+  .menu-head {
+    position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between;
+    padding: 0.75rem 1rem; background: var(--bg); border-bottom: 1px solid var(--line);
+  }
+  .menu-title { margin: 0; font-family: var(--slab); font-weight: 700; font-size: 1.25rem; }
+  .menu nav { padding: 0.5rem 1rem; }
+  .top > li { padding-block: 0.6rem; border-bottom: 1px solid var(--line); }
+  .top > li:last-child { border-bottom: 0; }
+  .top > li > a {
+    display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0;
+    font-weight: 700; font-size: 1.1rem; text-decoration: none; color: var(--text);
+  }
+  /* The page you're on is green, with a short green bar beside it. */
+  .top > li > a[aria-current='page'] { color: var(--green); }
+  @media (max-width: 71.99rem) {
+    .top > li > a { position: relative; }
+    .top > li > a[aria-current='page']::before { content: ''; position: absolute; left: -0.7rem; top: 50%; translate: 0 -50%; width: 3px; height: 1.2em; border-radius: 2px; background: var(--green); }
+  }
+  .caret { display: none; }
+  /* Sub-pages are a list in a white panel, like the dropdowns on a computer. */
+  .sub ul { margin: 0.45rem 0 0.15rem; padding: 0 0.75rem; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); }
+  .sub li + li { border-top: 1px solid var(--line); }
+  .sub a {
+    display: flex; align-items: center; gap: 0.35rem; padding: 0.6rem 0;
+    color: var(--text); text-decoration: none; font-size: 0.95rem; font-weight: 500; line-height: 1.25;
+  }
+  .sub a:hover { color: var(--green); text-decoration: underline; }
+  .ext { width: 0.7rem; height: 0.7rem; flex: none; fill: none; stroke: var(--muted); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .menu-foot { margin-top: auto; padding: 1rem; display: grid; gap: 0.6rem; border-top: 1px solid var(--line); background: var(--bg); }
+  .menu-foot .head-discord { justify-content: center; }
+  .menu-mail { margin: 0; font-size: 0.875rem; color: var(--muted); text-align: center; }
+  @media (max-width: 71.99rem) and (prefers-reduced-motion: no-preference) {
+    /* The sheet slides in from the right and back out. */
+    .menu, .menu::backdrop { transition: translate 320ms var(--ease), opacity 320ms ease, display 320ms allow-discrete, overlay 320ms allow-discrete; }
+    .menu { translate: 100% 0; }
+    .menu:popover-open { translate: 0 0; }
+    .menu::backdrop { opacity: 0; }
+    .menu:popover-open::backdrop { opacity: 1; }
+    @starting-style {
+      .menu:popover-open { translate: 100% 0; }
+      .menu:popover-open::backdrop { opacity: 0; }
+    }
+  }
+
+  /* Wide laptops and up (1,152px): everything sits in the header bar, and sub-pages drop down.
+     Narrower screens use the Menu button, because eight menu items don't fit on one line below that. */
+  @media (min-width: 72rem) {
+    .menu-btn, .menu-head, .menu-mail { display: none; }
+    .menu {
+      display: flex; position: static; height: auto; width: auto; padding: 0; border: 0;
+      flex-direction: row; align-items: center; gap: 1.25rem; background: none; overflow: visible;
+    }
+    .menu nav { padding: 0; }
+    .menu-foot { display: contents; }
+    .top { display: flex; gap: 1rem; }
+    .top > li { position: relative; border: 0; padding: 0; }
+    .top > li > a { padding: 0.5rem 0; font-size: 0.95rem; gap: 0.2rem; }
+    .top > li > a[aria-current='page'] { color: var(--text); text-decoration: underline; text-decoration-thickness: 2px; text-decoration-color: var(--green); text-underline-offset: 0.5em; }
+    .caret { display: block; width: 0.7rem; height: 0.7rem; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .sub {
+      position: absolute; top: 100%; left: -0.9rem; padding-top: 0.5rem; min-width: 15rem;
+      visibility: hidden; opacity: 0; translate: 0 -0.3rem;
+    }
+    /* The last two items' dropdowns line up with their right edge, so they never run off the screen. */
+    .top > li:nth-last-child(-n + 2) > .sub { left: auto; right: -0.9rem; }
+    .sub ul {
+      display: block; margin: 0; padding: 0.35rem; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface);
+    }
+    .sub li + li { border-top: 0; }
+    .sub a { display: flex; padding: 0.45rem 0.6rem; border-radius: 4px; font-size: 0.95rem; font-weight: 400; }
+    .sub a:hover { color: var(--text); }
+    .sub a:hover { background: var(--yellow-tint); text-decoration: none; }
+    .has-sub:hover > .sub, .has-sub:focus-within > .sub { visibility: visible; opacity: 1; translate: 0 0; }
+    .has-sub.hush > .sub { visibility: hidden; opacity: 0; }
+    .head-discord { align-self: auto; padding: 0.5em 0.85em; font-size: 0.95rem; }
+  }
+  @media (min-width: 72rem) and (max-width: 80rem) {
+    /* Tight laptops: shorter Discord button so the menu fits on one line. */
+    .head-discord { font-size: 0; gap: 0; padding: 0.55rem; }
+    .head-discord svg { width: 1.3rem; height: 1.3rem; }
+  }
+  @media (min-width: 72rem) and (prefers-reduced-motion: no-preference) {
+    /* Open quickly; close after a short pause, so a pointer can wander off without it vanishing. */
+    .sub { transition: opacity 160ms ease 100ms, translate 220ms var(--ease) 100ms, visibility 0s 260ms; }
+    .has-sub:hover > .sub, .has-sub:focus-within > .sub { transition-delay: 0s; }
+    .caret { transition: rotate 220ms var(--ease); }
+    .has-sub:hover .caret { rotate: 180deg; }
+    /* A green line slides in under the menu item you point at. */
+    .top > li > a::after { transition: scale 300ms var(--ease); }
+  }
+  @media (min-width: 72rem) {
+    .top > li > a { position: relative; }
+    .top > li > a[aria-current='page'] { text-decoration: none; }
+    .top > li > a::after {
+      content: ''; position: absolute; left: 0; right: 0; bottom: 0.15rem; height: 2px; border-radius: 2px;
+      background: var(--green); scale: 0 1; transform-origin: left;
+    }
+    .top > li > a:hover::after, .top > li > a[aria-current='page']::after { scale: 1 1; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .logo { transition: rotate 500ms var(--ease); }
+    .brand:hover .logo { rotate: -5deg; }
+  }
+
+  /* The footer is small print: smaller text, tighter lines. On phones the link lists sit side by side. */
+  .site-footer { border-top: 1px solid var(--rule); background: var(--surface); padding-block: 2rem 2.25rem; font-size: 0.85rem; line-height: 1.5; color: var(--muted); }
+  .footer-grid { display: grid; gap: 1.25rem 1.5rem; grid-template-columns: 1fr 1fr; }
+  .footer-about, .footer-contact { grid-column: 1 / -1; }
+  .footer-about p { margin: 0; }
+  @media (min-width: 40rem) { .footer-grid { grid-template-columns: repeat(3, 1fr); } .footer-contact { grid-column: auto; } }
+  @media (min-width: 56rem) { .footer-grid { grid-template-columns: 1.6fr 1.2fr 0.8fr 0.8fr; gap: 1.5rem 2.5rem; } .footer-about { grid-column: auto; } .footer-about p:last-child { max-width: 20rem; } }
+  .footer-name { font-family: var(--slab); font-weight: 700; font-size: 1.1rem; color: var(--text); margin-bottom: 0.2rem !important; }
+  .footer-h { font-size: 0.95rem; margin-bottom: 0.3rem; color: var(--text); }
+  .plain { list-style: none; margin: 0; padding: 0; }
+  .plain li { margin-bottom: 0.15rem; }
+  .plain a { display: inline-block; padding-block: 0.15rem; }
+  .footer-contact .plain { display: flex; flex-wrap: wrap; gap: 0 1.25rem; }
+  @media (min-width: 40rem) { .footer-contact .plain { display: block; } }
+
+  /* Lightbox */
+  .lightbox {
+    border: 0; padding: 0; background: none; max-width: 100vw; max-height: 100dvh; width: 100%; height: 100%;
+    display: none; place-items: center; overflow: hidden; cursor: zoom-out;
+  }
+  .lightbox[open] { display: grid; }
+  .lightbox::backdrop { background: rgb(28 20 15 / 0.75); backdrop-filter: blur(10px); }
+  .lightbox figure { margin: 0; display: grid; justify-items: center; gap: 0.75rem; padding: 3.5rem 1rem 1rem; }
+  .lightbox img { height: auto; max-width: 94vw; border-radius: 4px; background: #fff; object-fit: contain; }
+  .lightbox figcaption { color: #fff; font-size: 1rem; max-width: 40rem; text-align: center; }
+  .lb-count { color: #d9cfc4; white-space: nowrap; margin-left: 0.5rem; }
+  .lb-btn {
+    position: fixed; display: inline-flex; align-items: center; gap: 0.4rem;
+    font: inherit; font-weight: 700; color: var(--text); background: var(--surface);
+    border: 0; border-radius: 6px; padding: 0.45rem 0.8rem; cursor: pointer;
+  }
+  .lb-btn svg { width: 0.95rem; height: 0.95rem; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .lb-close { top: 1rem; right: 1rem; }
+  .lb-prev, .lb-next { top: 50%; translate: 0 -50%; padding: 0.8rem 0.6rem; }
+  .lb-prev { left: 0.75rem; }
+  .lb-next { right: 0.75rem; }
+  .lb-btn:hover { background: var(--yellow-tint); }
+  .single .lb-prev, .single .lb-next, .single .lb-count { display: none; }
+  @media (max-width: 40rem) {
+    /* Phones: arrows sit at the bottom so they don't cover the photo (swiping works too). */
+    .lb-prev, .lb-next { top: auto; bottom: 1rem; translate: none; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .lb-btn { transition: background-color 150ms ease; }
+    /* Fallback for browsers without view transitions: fade the lightbox in. */
+    .lightbox[open], .lightbox[open]::backdrop { transition: opacity 220ms ease; }
+    @starting-style { .lightbox[open], .lightbox[open]::backdrop { opacity: 0; } }
+  }
+</style>
+
+<style is:global>
+  ::view-transition-group(zoom) { animation-duration: 340ms; animation-timing-function: var(--ease); }
+  ::view-transition-old(zoom), ::view-transition-new(zoom) { height: 100%; object-fit: cover; }
+</style>

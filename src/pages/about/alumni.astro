@@ -1,0 +1,102 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/PageHead.astro';
+import PhotoPlaceholder from '../../components/PhotoPlaceholder.astro';
+
+// Alumni are grouped by the year they graduated (`classOf` in each file), oldest class first.
+// Anyone with a favorite memory written in their file gets the full card: photo, college, and the memory.
+// Everyone else gets a small card with their photo, name, and role.
+const all = (await getCollection('alumni')).sort((a, b) => a.data.order - b.data.order);
+const classes = await Promise.all(
+  [...new Set(all.map((p) => p.data.classOf))].sort((a, b) => a - b).map(async (year) => {
+    const people = all.filter((p) => p.data.classOf === year);
+    return {
+      year,
+      featured: await Promise.all(people.filter((p) => p.body?.trim()).map(async (p) => ({ ...p.data, Quote: (await render(p)).Content }))),
+      others: people.filter((p) => !p.body?.trim()).map((p) => p.data),
+    };
+  }),
+);
+---
+<Base title="Alumni" description="The graduates who started ChemQuest and helped it grow.">
+  <PageHead title="Alumni" doodle="telescope">
+    ChemQuest started with two friends and a lot of playdough. Here are the graduates who started it and helped it grow.
+  </PageHead>
+
+  {classes.map(({ year, featured, others }, n) => (
+    <section class="section" aria-labelledby={`class-${year}`}>
+      <div class="wrap">
+        <h2 id={`class-${year}`}>Class of {year} graduates</h2>
+        {featured.length > 0 && (
+          <ul class="founders">
+            {featured.map(({ name, role, college, major, memory, photo, Quote }, i) => (
+              <li class="person">
+                <figure class="taped snap" style={`--tilt:${i % 2 ? -2 : 2}deg`} data-reveal>
+                  {photo
+                    ? <Image src={photo} alt={`Portrait of ${name}.`} widths={[240, 400, 1600]} sizes="(min-width: 48rem) 14rem, 60vw" />
+                    : <PhotoPlaceholder label={name} ratio="4 / 5" />}
+                </figure>
+                <div>
+                  <p class="label">{role}</p>
+                  <h3>{name}</h3>
+                  {(college || major) && (
+                    <dl class="facts">
+                      {college && <div><dt>College</dt><dd>{college}</dd></div>}
+                      {major && <div><dt>Major</dt><dd>{major}</dd></div>}
+                    </dl>
+                  )}
+                  {memory && <h4 class="memory">Favorite memory: {memory}</h4>}
+                  <blockquote><Quote /></blockquote>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+        {others.length > 0 && (
+          <ul class="past" data-stagger>
+            {others.map((p) => (
+              <li>
+                {p.photo
+                  ? <Image src={p.photo} alt="" width={112} height={112} />
+                  : <span class="no-photo" />}
+                <span><strong>{p.name}</strong><span class="role">{p.role}</span></span>
+              </li>
+            ))}
+          </ul>
+        )}
+        {n === classes.length - 1 && <p class="muted thanks">Thank you to everyone who has helped run ChemQuest.</p>}
+      </div>
+    </section>
+  ))}
+</Base>
+
+<style>
+  .founders { list-style: none; padding: 0; margin: 1.5rem 0 0; }
+  .person { display: grid; gap: 1.5rem 3rem; padding-block: 2.5rem; border-top: 1px solid var(--line); }
+  .person:first-child { border-top: 0; padding-top: 0.5rem; }
+  @media (min-width: 48rem) { .person { grid-template-columns: 14rem 1fr; align-items: start; } }
+
+  .snap { width: min(14rem, 70%); margin-left: 0.75rem; }
+  @media (min-width: 48rem) { .snap { width: auto; margin: 0.75rem 0 0; } }
+  .snap img, .snap :global(.ph) { aspect-ratio: 4 / 5; object-fit: cover; object-position: 50% 25%; }
+
+  .person h3 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+  .facts { display: flex; flex-wrap: wrap; gap: 0.25rem 2rem; margin: 0 0 1.25rem; font-size: 1rem; }
+  .facts dt { font-weight: 600; color: var(--muted); font-size: 0.95rem; }
+  .facts dd { margin: 0; }
+  .memory { font-family: var(--slab); font-size: 1.15rem; font-weight: 600; margin: 0 0 0.5rem; }
+  blockquote { margin: 0; padding: 1rem 1.25rem; background: var(--yellow-tint); border-radius: 6px; max-width: 42rem; position: relative; }
+  blockquote::before { content: '“'; position: absolute; top: -1.1rem; left: 0.6rem; font-family: var(--slab); font-size: 3.5rem; line-height: 1; color: var(--purple); }
+  blockquote :global(p) { margin: 0; }
+
+  /* Everyone else: a row of small cards with a photo, name, and role. */
+  .past { list-style: none; padding: 0; margin: 1rem 0 0; display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(min(15rem, 100%), 1fr)); }
+  .past li { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); font-size: 0.95rem; line-height: 1.35; }
+  .past img, .no-photo { width: 3.5rem; height: 3.5rem; flex: none; object-fit: cover; object-position: 50% 20%; border-radius: 4px; background: var(--bg); }
+  .no-photo { background: var(--bg) var(--graph); border: 1px dashed var(--rule); }
+  .past strong { display: block; }
+  .role { display: block; color: var(--muted); font-size: 0.85rem; }
+  .thanks { margin: 1.5rem 0 0; }
+</style>

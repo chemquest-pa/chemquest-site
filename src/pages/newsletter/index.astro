@@ -1,0 +1,283 @@
+---
+import { Image } from 'astro:assets';
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/PageHead.astro';
+import Subscribe from '../../components/Subscribe.astro';
+import { getIssues, contents, teaser, topics, type Topic } from '../../newsletter';
+import { links, issueDate } from '../../site';
+
+const issues = await getIssues();
+const withContents = await Promise.all(issues.map(async (i) => ({ ...i, sections: contents((await render(i)).headings) })));
+const [latest] = withContents;
+const first = issues.at(-1)!;
+const since = first.data.date.toLocaleDateString('en-US', { timeZone: 'UTC', month: 'long', year: 'numeric' });
+
+// Topic tabs: only topics that have issues, biggest first.
+const counts = issues.reduce<Record<string, number>>((c, i) => ({ ...c, [i.data.topic]: (c[i.data.topic] ?? 0) + 1 }), {});
+const tabs = (Object.keys(topics) as Topic[]).filter((t) => counts[t]).sort((a, b) => counts[b] - counts[a]);
+
+// The list of issues, grouped by year, newest first.
+const years = [...new Set(issues.map((i) => i.data.date.getUTCFullYear()))];
+const monthDay = (d: Date) => d.toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric' });
+// Search ignores capitals and accents, so "deja vu" finds "Déjà Vu". The script below folds what people type the same way.
+const fold = (s: string) => s.toLowerCase().normalize('NFD').replace(/\p{M}/gu, '');
+const searchText = (i: (typeof withContents)[number]) =>
+  fold([i.data.title, i.data.summary, topics[i.data.topic], i.data.author, ...i.sections.map((s) => s.text)].join(' '));
+---
+<Base title="Newsletter" description="Every other Sunday, ChemQuest's free newsletter explains one science topic for kids and families and shares ChemQuest news. You can read all of our past issues here.">
+  <PageHead title="Newsletter" doodle="flask">
+    Every other Sunday, a ChemQuest officer picks one science topic and explains it for kids and families, along with ChemQuest news.
+  </PageHead>
+
+  <section class="section" aria-labelledby="latest-h">
+    <div class="wrap top-grid">
+      <article class="latest">
+        <p class="label" id="latest-h">Latest issue: {issueDate(latest.data.date)}</p>
+        <div class="latest-grid">
+          {latest.thumb && (
+            <a class="latest-pic taped" style="--tilt:-2deg" href={`/newsletter/${latest.slug}/`} tabindex="-1" aria-hidden="true" data-reveal>
+              <Image src={latest.thumb} alt="" widths={[320, 560]} sizes="(min-width: 56rem) 16rem, 80vw" />
+            </a>
+          )}
+          <div>
+            <h2 class="latest-title"><a href={`/newsletter/${latest.slug}/`}>{latest.data.title}</a></h2>
+            <p class="byline muted">
+              {latest.data.author && <span>By {latest.data.author}</span>}
+              <span>{latest.minutes} min read</span>
+            </p>
+            {latest.data.summary && <p>{teaser(latest.data.summary)}</p>}
+            {latest.sections.length > 0 && (
+              <>
+                <h3 class="in-h">In this issue</h3>
+                <ul class="in-list">
+                  {latest.sections.map((s) => <li><a href={`/newsletter/${latest.slug}/#${s.slug}`}>{s.text}</a></li>)}
+                </ul>
+              </>
+            )}
+            <a class="btn btn-primary" href={`/newsletter/${latest.slug}/`}>Read this issue</a>
+          </div>
+        </div>
+      </article>
+
+      <aside class="side" aria-label="Subscribe and get involved">
+        <div class="box subscribe">
+          <h2>Get it by email, free</h2>
+          <Subscribe />
+        </div>
+        <div class="box">
+          <h2>High school students</h2>
+          <p>Earn volunteer hours by helping kids at our science events.</p>
+          <a class="go" href="/volunteer/">How to volunteer</a>
+        </div>
+        <div class="box">
+          <h2>Tell us what you think</h2>
+          <p>Use our feedback form to suggest a topic for a future issue.</p>
+          <a class="go" href={links.newsletterFeedback}>Newsletter feedback form</a>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section all" id="all" aria-labelledby="all-h">
+    <div class="wrap">
+      <div class="all-head">
+        <h2 id="all-h">All issues</h2>
+        <p class="muted">{issues.length} issues since {since}</p>
+      </div>
+
+      <!-- Topic tabs and search. Hidden until the script runs, so without JavaScript you simply see every issue. -->
+      <div class="filters" hidden>
+        <div class="tabs" role="group" aria-label="Show issues about">
+          <button type="button" class="tab" data-topic="all" aria-pressed="true">All <span class="n">{issues.length}</span></button>
+          {tabs.map((t) => <button type="button" class="tab" data-topic={t} aria-pressed="false">{topics[t]} <span class="n">{counts[t]}</span></button>)}
+        </div>
+        <label class="search">
+          <span class="sr-only">Search issues</span>
+          <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" /><path d="m13 13 4.5 4.5" /></svg>
+          <input type="search" placeholder="Search, like “sleep” or “planes”" enterkeyhint="search" autocomplete="off" />
+        </label>
+      </div>
+      <p class="status muted" role="status" aria-live="polite"></p>
+
+      {years.map((y) => (
+        <div class="year" data-year={y}>
+          <h3 class="year-h">{y}</h3>
+          <ul class="issues">
+            {withContents.filter((i) => i.data.date.getUTCFullYear() === y).map((i) => (
+              <li class="issue" data-topic={i.data.topic} data-search={searchText(i)}>
+                <p class="when">{monthDay(i.data.date)}</p>
+                <div class="what">
+                  <p class="topic">{topics[i.data.topic]}</p>
+                  <h4 class="title"><a href={`/newsletter/${i.slug}/`}>{i.data.title}</a></h4>
+                  {i.data.summary && <p class="sum">{teaser(i.data.summary)}</p>}
+                </div>
+                {i.thumb
+                  ? <Image class="thumb" src={i.thumb} alt="" width={160} height={160} loading="lazy" />
+                  : <span class="thumb blank" aria-hidden="true" />}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+      <p class="none" hidden>No issues match. Try another word, or <button type="button" class="linkish" data-reset>show all issues</button>.</p>
+    </div>
+  </section>
+</Base>
+
+<script>
+  // Topic tabs and search for the list of issues. ?topic=life in the address opens a topic directly.
+  const filters = document.querySelector<HTMLElement>('.filters')!;
+  const tabs = [...document.querySelectorAll<HTMLButtonElement>('.tab')];
+  const input = filters.querySelector('input')!;
+  const items = [...document.querySelectorAll<HTMLElement>('.issue')];
+  const years = [...document.querySelectorAll<HTMLElement>('.year')];
+  const status = document.querySelector<HTMLElement>('.status')!;
+  const none = document.querySelector<HTMLElement>('.none')!;
+  let topic = new URLSearchParams(location.search).get('topic') ?? 'all';
+  if (!tabs.some((t) => t.dataset.topic === topic)) topic = 'all';
+
+  const fold = (s: string) => s.toLowerCase().normalize('NFD').replace(/\p{M}/gu, '');
+
+  const update = () => {
+    const words = fold(input.value).split(/\s+/).filter(Boolean);
+    let shown = 0;
+    for (const li of items) {
+      const ok = (topic === 'all' || li.dataset.topic === topic) && words.every((w) => li.dataset.search!.includes(w));
+      li.hidden = !ok;
+      if (ok) shown++;
+    }
+    for (const y of years) y.hidden = !y.querySelector('.issue:not([hidden])');
+    for (const t of tabs) t.setAttribute('aria-pressed', String(t.dataset.topic === topic));
+    none.hidden = shown > 0;
+    status.textContent = topic === 'all' && !words.length ? '' : `Showing ${shown} of ${items.length} issues`;
+    showTab();
+  };
+  // On phones the tabs are one sideways-scrolling row: bring the chosen tab into view (sideways only).
+  const showTab = () => {
+    const on = tabs.find((t) => t.dataset.topic === topic)!;
+    on.parentElement!.scrollLeft += on.getBoundingClientRect().left - on.parentElement!.getBoundingClientRect().left - 16;
+  };
+  // Again once the site's font has loaded, since it changes the tabs' widths.
+  document.fonts.ready.then(showTab);
+
+  for (const t of tabs) t.addEventListener('click', () => {
+    topic = t.dataset.topic!;
+    const url = new URL(location.href);
+    if (topic === 'all') url.searchParams.delete('topic'); else url.searchParams.set('topic', topic);
+    history.replaceState(null, '', url);
+    update();
+  });
+  input.addEventListener('input', update);
+  // The keyboard's Search key closes the keyboard, so the results show.
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); input.blur(); } });
+  // "Show all issues" works like the All tab, which also clears ?topic= from the address.
+  document.querySelector('[data-reset]')!.addEventListener('click', () => { input.value = ''; tabs[0].click(); tabs[0].focus(); });
+  filters.hidden = false;
+  update();
+  // Opened from a topic link on an issue page: keep the list in view.
+  if (topic !== 'all') document.getElementById('all')?.scrollIntoView();
+</script>
+
+<style>
+  /* Latest issue and the side boxes. */
+  .top-grid { display: grid; gap: 2.5rem; }
+  @media (min-width: 60rem) { .top-grid { grid-template-columns: 1fr 19rem; gap: 3.5rem; align-items: start; } }
+  .latest-grid { display: grid; gap: 1.5rem 2rem; }
+  @media (min-width: 40rem) { .latest-grid { grid-template-columns: 15rem 1fr; align-items: start; } }
+  .latest-pic { display: block; margin: 0.9rem 0.4rem 0; max-width: 18rem; }
+  .latest-pic img { aspect-ratio: 1; object-fit: cover; }
+  @media (max-width: 39.99rem) { .latest-pic { max-width: 11rem; } }
+  .latest-title { font-size: clamp(1.6rem, 1.3rem + 1.2vw, 2.2rem); margin-bottom: 0.35rem; }
+  .latest-title a { color: var(--text); text-decoration-color: var(--green); text-decoration-thickness: 2px; }
+  .latest-title a:hover { color: var(--green); }
+  .byline { display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; font-size: 0.9rem; margin-bottom: 0.9rem; }
+  .in-h { font-size: 1.05rem; margin: 1.25rem 0 0.4rem; }
+  .in-list { margin: 0 0 1.5rem; padding-left: 1.1rem; columns: 2 12rem; column-gap: 2rem; }
+  .in-list li { margin-bottom: 0.3rem; break-inside: avoid; }
+  .in-list li::marker { color: var(--green); }
+
+  .side { display: grid; gap: 1rem; }
+  .box { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 1.1rem 1.25rem 1.25rem; }
+  .box h2 { font-size: 1.25rem; margin-bottom: 0.35rem; }
+  .box p { font-size: 0.95rem; margin-bottom: 0.8rem; }
+  .subscribe { background: var(--purple-tint); border-color: var(--purple-mid); }
+  .subscribe .btn { width: 100%; justify-content: center; }
+
+  /* All issues. */
+  .all { background: var(--surface); }
+  .all-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.25rem 1rem; }
+  .all-head h2, .all-head p { margin: 0; }
+  .filters { display: grid; gap: 0.9rem; margin: 1.25rem 0 0.25rem; }
+  .filters[hidden] { display: none; }
+  /* Topic tabs: plain words with a green underline on the chosen one, like the menu on a computer. */
+  .tabs { display: flex; flex-wrap: wrap; gap: 0.15rem 1.1rem; border-bottom: 1px solid var(--line); }
+  .tab {
+    font: inherit; font-size: 0.95rem; font-weight: 600; color: var(--muted); background: none; border: 0; cursor: pointer;
+    padding: 0.45rem 0 0.5rem; margin-bottom: -1px; border-bottom: 2px solid transparent; white-space: nowrap;
+  }
+  .tab .n { font-weight: 400; font-size: 0.85em; color: var(--muted); }
+  .tab:hover { color: var(--text); }
+  .tab[aria-pressed='true'] { color: var(--green); border-bottom-color: var(--green); }
+  /* Wider screens: the tabs wrap onto two lines, so there's no rule under them, just the green underline. */
+  @media (min-width: 40rem) { .tabs { border-bottom: 0; } }
+  /* Windows contrast themes: show which tab is chosen with the system highlight color. */
+  @media (forced-colors: active) {
+    .tab { border-bottom-color: Canvas; }
+    .tab[aria-pressed='true'] { color: Highlight; border-bottom-color: Highlight; }
+  }
+  .search { position: relative; display: block; max-width: 24rem; }
+  .search svg { position: absolute; left: 0.75rem; top: 50%; translate: 0 -50%; width: 1.05rem; height: 1.05rem; fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; }
+  .search input {
+    /* At least 16px, or iPhones zoom the page when you tap the box. */
+    width: 100%; font: inherit; font-size: max(1rem, 16px); color: var(--text); background: var(--bg);
+    border: 1px solid #8a7a68; border-radius: 6px; padding: 0.6rem 0.8rem 0.6rem 2.3rem;
+  }
+  .search input::placeholder { color: var(--muted); opacity: 1; }
+  .search input:focus { outline: 3px solid var(--focus); outline-offset: 1px; border-color: var(--text); }
+  .status { min-height: 1.5em; margin: 0.5rem 0 0; font-size: 0.9rem; }
+  .none { margin-top: 1.5rem; }
+  .linkish { font: inherit; color: var(--green); background: none; border: 0; padding: 0; text-decoration: underline; cursor: pointer; }
+
+  .year[hidden] { display: none; }
+  .year-h { font-size: 1.2rem; margin: 1.75rem 0 0.25rem; color: var(--purple); }
+  .issues { list-style: none; margin: 0; padding: 0; }
+  /* One row per issue: date, words, picture. The whole row is clickable through the title's link. */
+  .issue {
+    position: relative; display: grid; grid-template-columns: 4.25rem 1fr 4.5rem; gap: 0.25rem 1rem; align-items: start;
+    padding: 1rem 0; border-top: 1px solid var(--line);
+  }
+  .issue[hidden] { display: none; }
+  .when { margin: 0.15rem 0 0; font-weight: 600; font-size: 0.9rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .what { min-width: 0; }
+  .topic { margin: 0; font-size: 0.8rem; font-weight: 600; color: var(--purple); }
+  .title { font-family: var(--slab); font-size: 1.15rem; line-height: 1.25; margin: 0.1rem 0 0.3rem; }
+  .title a { color: var(--text); text-decoration: none; }
+  .title a::after { content: ''; position: absolute; inset: 0; }
+  .issue:hover .title a, .title a:focus-visible { color: var(--green); text-decoration: underline; text-decoration-thickness: 2px; }
+  .title a:focus-visible { outline: none; }
+  .issue:has(a:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+  .sum { margin: 0; font-size: 0.92rem; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .thumb { width: 4.5rem; height: 4.5rem; object-fit: cover; border-radius: 4px; border: 1px solid var(--line); }
+  .blank { display: block; background: var(--bg) var(--graph); }
+  @media (min-width: 48rem) {
+    .issue { grid-template-columns: 5rem 1fr 6rem; gap: 0.25rem 1.5rem; padding: 1.1rem 0.5rem; margin-inline: -0.5rem; border-radius: 4px; }
+    .issue:hover { background: var(--bg); }
+    .thumb { width: 6rem; height: 6rem; }
+  }
+  @media (max-width: 39.99rem) {
+    /* Phones: the date sits above the title, and the topic tabs scroll sideways in one row. */
+    .issue { grid-template-columns: 1fr 4.5rem; }
+    .when { grid-column: 1; grid-row: 1; margin: 0; font-size: 0.8rem; }
+    .what { grid-column: 1; grid-row: 2; }
+    .thumb { grid-column: 2; grid-row: 1 / span 2; }
+    .tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-inline: -1rem; padding-inline: 1rem; }
+    /* The right edge fades, so it's clear the row scrolls sideways to more topics. */
+    .tabs { mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent); }
+    /* The focus ring sits inside the tab, so the scrolling row doesn't cut it off. */
+    .tab:focus-visible { outline-offset: -3px; padding-inline: 0.4rem; margin-inline: -0.4rem; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .tab { transition: color 150ms ease, border-color 150ms ease; }
+  }
+</style>

@@ -1,0 +1,14 @@
+---
+// The newsletter sign-up. With beehiiv's embed code in `newsletterForm` (src/site.ts), the email box sits right here
+// on our page. Without it, the button goes to beehiiv's own sign-up page.
+import { links, newsletterForm } from '../site';
+---
+{newsletterForm
+  ? <div class="nl-form"><Fragment set:html={newsletterForm} /></div>
+  : <a class="btn btn-primary" href={links.newsletterSubscribe}>Subscribe to the newsletter</a>}
+<p class="nl-note">First, click the link in the confirmation email we send you. After that, you'll get one email every other Sunday with the new issue. Every email has an unsubscribe link at the bottom.</p>
+
+<style>
+  .nl-form { margin-top: 0.25rem; }
+  .nl-note { font-size: 0.875rem; color: var(--muted); margin: 0.6rem 0 0; max-width: 30rem; }
+</style>

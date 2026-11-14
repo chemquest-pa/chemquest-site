@@ -1,0 +1,133 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/PageHead.astro';
+import { getEvents } from '../../site';
+import storyPhoto from '../../assets/photos/story-circle.avif';
+import fairPhoto from '../../assets/photos/science-fair-board.png';
+
+const { upcoming, past } = await getEvents();
+const eventCount = upcoming.length + past.length;
+const teamPhotos = (await getCollection('team')).sort((a, b) => a.data.order - b.data.order).filter((p) => p.data.photo);
+// The faces on the Alumni card: the first graduating class (the founders and Bethsaida).
+const alumniAll = await getCollection('alumni');
+const firstClass = Math.min(...alumniAll.map((p) => p.data.classOf));
+const founders = alumniAll.filter((p) => p.data.classOf === firstClass).sort((a, b) => a.data.order - b.data.order);
+
+// Core values, each as a periodic-table tile with a made-up "element symbol".
+const pillars = [
+  { sym: 'Im', name: 'Impact', tint: 'g', text: 'We want every kid to leave an event excited about science and sure they can do it.' },
+  { sym: 'Co', name: 'Community', tint: 'p', text: 'Kids, families, and student volunteers from different backgrounds learn side by side.' },
+  { sym: 'Ed', name: 'Education', tint: 'y', text: 'Kids learn real science ideas, like density and chemical reactions, by trying them out.' },
+];
+---
+<Base title="About us" description="ChemQuest is a student-run 501(c)(3) nonprofit in Glen Mills, PA that makes science hands-on, fun, and free for kids.">
+  <PageHead title="About ChemQuest" doodle="molecule">
+    We're a student-run 501(c)(3) nonprofit in Glen Mills, PA. We make science hands-on, fun, and free for kids.
+  </PageHead>
+
+  <section class="section" aria-labelledby="story-h">
+    <div class="wrap two-col">
+      <div>
+        <h2 id="story-h">Our story</h2>
+        <p>Two friends with a shared love of chemistry, Charlotte Wu and Matthew Pun, started ChemQuest to give back to their community. Our first event, at the Rachel Kohl Library in August 2023, drew more than 20 kids who made playdough, homemade ice cream, and lemon volcanoes.</p>
+        <p>Since then we've hosted {eventCount} events, including two science fairs. The founders have graduated, and ChemQuest is now run by students from Garnet Valley and Unionville high schools.</p>
+      </div>
+      <figure class="taped photo" style="--tilt:2deg" data-reveal>
+        <Image src={storyPhoto} alt="Kids sitting on the floor in a circle around a ChemQuest volunteer's demonstration." widths={[400, 640, 1600]} sizes="(min-width: 56rem) 26rem, 100vw" />
+      </figure>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="mission-h">
+    <div class="wrap two-col flip">
+      <div>
+        <h2 id="mission-h">Our mission</h2>
+        <p class="mission">To make science accessible and fun for every kid, regardless of background or ability, at no cost.</p>
+        <dl class="pillars" data-stagger>
+          {pillars.map((p) => (
+            <div>
+              <dt>
+                <span class:list={['tile', p.tint]} aria-hidden="true">{p.sym}</span>
+                {p.name}
+              </dt>
+              <dd>{p.text}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+      <figure class="taped photo square" style="--tilt:-2deg" data-reveal>
+        <Image src={fairPhoto} alt="A young student presenting a science fair board to a judge." widths={[360, 540, 1600]} sizes="(min-width: 56rem) 22rem, 100vw" />
+      </figure>
+    </div>
+  </section>
+
+  <section class="section people" aria-labelledby="people-h">
+    <div class="wrap">
+      <h2 id="people-h">The people behind ChemQuest</h2>
+      <div class="people-grid" data-stagger>
+        <a class="group" href="/about/team/">
+          <span class="faces" aria-hidden="true">
+            {teamPhotos.length
+              ? teamPhotos.slice(0, 6).map((p) => p.data.photo && <Image src={p.data.photo} alt="" width={96} height={96} />)
+              : [0, 1, 2, 3, 4].map(() => <span class="blank" />)}
+          </span>
+          <span class="group-name">Our team</span>
+          <span class="muted">The high school students who run ChemQuest today</span>
+        </a>
+        <a class="group" href="/about/alumni/">
+          <span class="faces" aria-hidden="true">
+            {founders.map((p) => p.data.photo && <Image src={p.data.photo} alt="" width={96} height={96} />)}
+          </span>
+          <span class="group-name">Alumni</span>
+          <span class="muted">Officers who have graduated, starting with our founders</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .two-col { display: grid; gap: 2.5rem; align-items: center; }
+  .two-col p { max-width: 40rem; }
+  @media (min-width: 56rem) {
+    .two-col { grid-template-columns: 1fr 26rem; gap: 4rem; }
+    .flip { grid-template-columns: 1fr 22rem; }
+  }
+  .photo img { aspect-ratio: 3 / 2; object-fit: cover; }
+  .square img { aspect-ratio: 1; }
+
+
+  .mission {
+    font-family: var(--slab); font-size: 1.55rem; font-weight: 600; font-style: italic; line-height: 1.3;
+    margin: 0.75rem 0 0; color: var(--purple);
+  }
+  /* Each value gets a little periodic-table tile. */
+  .pillars { margin: 1.5rem 0 0; }
+  .pillars > div { position: relative; min-height: 4.7rem; padding: 0.85rem 0 0.85rem 4rem; border-top: 1px solid var(--line); }
+  .pillars dt { font-weight: 600; }
+  .tile {
+    position: absolute; left: 0; top: 0.85rem; display: grid; place-items: center; width: 3rem; height: 3rem;
+    border: 1.5px solid var(--text); border-radius: 4px; font-family: var(--slab); font-weight: 700; font-size: 1.35rem;
+  }
+  .tile.g { background: var(--green-tint); } .tile.p { background: var(--purple-tint); } .tile.y { background: var(--yellow-tint); }
+  .pillars dd { margin: 0; }
+
+  .people-grid { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); margin-top: 1.25rem; }
+  .group {
+    display: grid; gap: 0.2rem; padding: 1.25rem; text-decoration: none; color: var(--text);
+    border: 1px solid var(--rule); border-radius: 8px; background: var(--surface);
+  }
+  .group:hover { border-color: var(--text); }
+  .group-name { font-family: var(--slab); font-weight: 700; font-size: 1.5rem; color: var(--green); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
+  .group:hover .group-name { text-decoration-thickness: 2px; }
+  .faces { display: flex; margin-bottom: 0.75rem; padding-left: 0.5rem; }
+  .faces img, .blank { width: 3.25rem; height: 3.25rem; object-fit: cover; object-position: top; border-radius: 50%; border: 2px solid var(--surface); margin-left: -0.5rem; background: var(--bg); }
+  .blank { border: 2px dashed var(--rule); background: var(--surface) var(--graph); }
+  @media (prefers-reduced-motion: no-preference) {
+    .faces img, .blank { transition: translate 400ms var(--ease); }
+    .group:hover .faces > :nth-child(odd) { translate: 0 -4px; }
+    .group:hover .faces > :nth-child(even) { translate: 0 3px; }
+  }
+</style>

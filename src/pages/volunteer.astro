@@ -1,0 +1,126 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import { links, discordIcon } from '../site';
+import group from '../assets/photos/volunteer-group.png';
+import withHost from '../assets/photos/volunteers-with-host.png';
+
+const steps = [
+  { title: 'Fill out the interest form', text: 'It tells us who you are and how to reach you.', href: links.volunteerForm, cta: 'Open the volunteer form' },
+  { title: 'Join our Discord server', text: 'Our volunteers plan events and get announcements there. Most of our conversations happen on Discord, so don’t skip this step!', href: links.discord, cta: 'Join the Discord', discord: true },
+  { title: 'Help at an event', text: 'We’ll reach out when the next event is scheduled. Then come teach some kids!' },
+];
+const tasks = [
+  'Help teach kids at hands-on experiment stations',
+  'Explain the science in a way kids can follow',
+  'Help set up before the event and clean up after',
+  'Earn volunteer hours for your time',
+];
+---
+<Base title="Volunteer" description="High school students: volunteer at ChemQuest's free STEM events for kids and earn volunteer hours.">
+  <PageHead title="Volunteer with ChemQuest" doodle="dropper">
+    Are you a high school student who likes science? Help kids do real experiments at our free events, and earn volunteer hours while you're at it.
+  </PageHead>
+
+  <section class="section" aria-labelledby="how-h">
+    <div class="wrap two-col">
+      <div>
+        <h2 id="how-h">How to join</h2>
+        <ol class="steps" data-stagger>
+          {steps.map((s) => (
+            <li class:list={{ star: s.discord }}>
+              <h3>{s.title}</h3>
+              <p>{s.text}</p>
+              {s.href && (
+                <a class={s.discord ? 'btn btn-discord' : 'btn btn-primary'} href={s.href}>
+                  {s.discord && <svg viewBox="0 0 24 24" aria-hidden="true"><path d={discordIcon} /></svg>}
+                  {s.cta}
+                </a>
+              )}
+            </li>
+          ))}
+        </ol>
+        <p class="muted alt">Prefer email? Send your full name, grade, email, and phone number to <a href={`mailto:${links.email}`}>{links.email}</a>.</p>
+      </div>
+      <figure class="taped photo" style="--tilt:1.5deg" data-reveal>
+        <Image src={group} alt="A large group of ChemQuest volunteers posing together at an event." widths={[400, 640, 1600]} sizes="(min-width: 56rem) 24rem, 100vw" />
+      </figure>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="do-h">
+    <div class="wrap two-col">
+      <div>
+        <h2 id="do-h">What volunteers do</h2>
+        <ul class="ticks" data-stagger>
+          {tasks.map((t) => <li>{t}</li>)}
+        </ul>
+        <p>You don't need any experience, and every bit of help is appreciated. If you like science and you're patient with little kids, you'll fit right in.</p>
+      </div>
+      <figure class="taped photo tall" style="--tilt:-2deg" data-reveal>
+        <Image src={withHost} alt="Four ChemQuest volunteers in matching shirts standing with a library host." widths={[360, 540, 1600]} sizes="(min-width: 56rem) 24rem, 100vw" />
+      </figure>
+    </div>
+  </section>
+
+  <section class="section band" aria-labelledby="else-h">
+    <div class="wrap">
+      <h2 id="else-h">Not in high school?</h2>
+      <p>Parents and businesses can help by <a href="/sponsor/">sponsoring or donating</a>. Libraries and learning centers can <a href={`mailto:${links.email}?subject=Hosting%20a%20ChemQuest%20event`}>email us about hosting an event</a>.</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .two-col { display: grid; gap: 2.5rem; align-items: start; }
+  @media (min-width: 56rem) { .two-col { grid-template-columns: 1fr 24rem; gap: 4rem; } }
+
+  /* Numbered steps joined by a dashed line. */
+  .steps { list-style: none; counter-reset: step; margin: 1.5rem 0; padding: 0; }
+  .steps li { counter-increment: step; position: relative; padding: 0 0 2rem 4rem; }
+  .steps li::before {
+    content: counter(step); position: absolute; left: 0; top: -0.2rem;
+    display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: 50%;
+    border: 1.5px solid var(--text); background: var(--green-tint);
+    font-family: var(--slab); font-weight: 700; font-size: 1.3rem;
+  }
+  .steps li:nth-child(2)::before { background: var(--purple-tint); }
+  .steps li:nth-child(3)::before { background: var(--yellow-tint); }
+  .steps li:not(:last-child)::after { content: ''; position: absolute; left: calc(1.375rem - 1px); top: 2.6rem; bottom: 0.2rem; border-left: 2px dashed var(--line); }
+  .steps li:last-child { padding-bottom: 0; }
+  .steps h3 { margin-bottom: 0.2rem; }
+  .steps p { margin-bottom: 0.75rem; }
+  /* The Discord step stands out: it's where volunteers actually talk. */
+  .steps li.star { margin: 0 0 2rem -0.5rem; padding: 1.1rem 1rem 1.25rem 4.5rem; background: var(--purple-tint); border-radius: 10px; }
+  .steps li.star::before { left: 0.5rem; top: 1rem; background: var(--surface); }
+  @media (min-width: 40rem) { .steps li.star { margin-left: -1rem; padding-left: 5rem; } .steps li.star::before { left: 1rem; } }
+  .steps li.star::after { display: none; }
+  .steps li:has(+ .star)::after { bottom: -0.1rem; }
+  .alt { font-size: 1rem; }
+
+  .ticks { list-style: none; padding: 0; margin: 1rem 0 1.5rem; }
+  .ticks li { position: relative; padding-left: 2.25rem; margin-bottom: 0.6rem; }
+  .ticks li::before {
+    content: ''; position: absolute; left: 0; top: 0.35rem; width: 1.2rem; height: 1.2rem;
+    border: 1.5px solid var(--text); border-radius: 50%; background: var(--green-tint);
+  }
+  .ticks li::after {
+    content: ''; position: absolute; left: 0.42rem; top: 0.52rem; width: 0.35rem; height: 0.6rem;
+    border: solid var(--green); border-width: 0 2.5px 2.5px 0; rotate: 45deg;
+  }
+
+  .photo img { aspect-ratio: 3 / 2; object-fit: cover; }
+  .tall img { aspect-ratio: 4 / 3; object-position: 50% 30%; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* Check marks pop in after their line arrives; the Discord logo waves under the pointer. */
+    :global(.js-reveal) .ticks li::after { scale: 0; transition: scale 400ms var(--ease) calc(var(--delay, 0ms) + 350ms); }
+    :global(.js-reveal) .ticks li:global(.is-in)::after { scale: 1; }
+    .star .btn svg { transition: rotate 400ms var(--ease); }
+    .star .btn:hover svg { rotate: -12deg; }
+  }
+
+  .band { background: var(--yellow-tint); }
+  .band p { max-width: 40rem; margin: 0; }
+</style>

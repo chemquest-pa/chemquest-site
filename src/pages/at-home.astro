@@ -1,0 +1,154 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection, render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import PhotoPlaceholder from '../components/PhotoPlaceholder.astro';
+import { links } from '../site';
+
+// The newest month is featured; older ones are listed underneath so nothing gets lost.
+const all = (await getCollection('experiments')).sort((a, b) => b.data.month.localeCompare(a.data.month));
+const [current, ...older] = all;
+const e = current.data;
+const { Content } = await render(current);
+const monthName = (m: string) => new Date(`${m}-15T12:00:00Z`).toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+const olderRendered = await Promise.all(older.map(async (x) => ({ ...x.data, Content: (await render(x)).Content })));
+
+// Photo submissions: the Google Form in `links.photoForm` (src/site.ts) when it's set, with email as the backup.
+// The email is pre-filled so parents don't forget anything.
+const submit = `mailto:${links.email}?subject=${encodeURIComponent(`At-home experiment photo: ${e.title}`)}&body=${encodeURIComponent(
+  `Hi ChemQuest! Here's a photo of our ${e.title.toLowerCase()}.\n\nChild's first name:\nAge (optional):\n\nI'm the child's parent or guardian, and ChemQuest has my permission to share this photo in its newsletter and on its website, with first name only.\n`,
+)}`;
+---
+<Base title="Try at home" description={`This month's at-home science experiment from ChemQuest: ${e.title}. Supplies, steps, and the science behind it.`}>
+  <PageHead title="Try it at home" doodle="lava">
+    Every month we pick an experiment you can do with things from your kitchen. Here's {monthName(e.month)}'s.
+    <strong class="feature">Try it, send us a photo, and your kid could be featured at the top of our next newsletter.</strong> <a href="#share-h">How to send a photo</a>
+  </PageHead>
+
+  <article class="section" aria-labelledby="exp-h">
+    <div class="wrap exp">
+      <div class="exp-main">
+        <p class="label">{monthName(e.month)}</p>
+        <h2 id="exp-h">{e.title}</h2>
+        {(e.time || e.ages) && (
+          <p class="meta">{e.time && <span>{e.time}</span>}{e.ages && <span>{e.ages}</span>}</p>
+        )}
+        <div class="body"><Content /></div>
+        <p class="sources small muted">
+          Steps and science from {e.sources.map((src, i) => <>{i > 0 && (i === e.sources.length - 1 ? ' and ' : ', ')}<a href={src.url}>“{src.title}”</a> on {src.site}</>)}.
+        </p>
+      </div>
+      <aside class="side">
+        {e.photo
+          ? <figure class="exp-fig">
+              <Image src={e.photo} alt={e.photoAlt ?? ''} widths={[360, 525]} sizes="(min-width: 56rem) 22rem, 100vw" class="exp-photo" />
+              {e.photoCredit && (
+                <figcaption class="credit">Photo: <a href={e.photoCredit.url}>{e.photoCredit.text}</a>, <a href={e.photoCredit.licenseUrl}>{e.photoCredit.license}</a></figcaption>
+              )}
+            </figure>
+          : <PhotoPlaceholder label={`The finished ${e.title.toLowerCase()}`} ratio="4 / 5" />}
+        <h3>You'll need</h3>
+        <ul class="supplies" data-stagger>{e.supplies.map((s) => <li>{s}</li>)}</ul>
+        {e.safety.length > 0 && (
+          <div class="safety">
+            <h3>Our safety tips</h3>
+            <ul>{e.safety.map((s) => <li>{s}</li>)}</ul>
+          </div>
+        )}
+      </aside>
+    </div>
+  </article>
+
+  <section class="section share" aria-labelledby="share-h">
+    <div class="wrap">
+      <div class="share-text">
+        <h2 id="share-h">Get featured in our newsletter</h2>
+        <p>Did your kid try this month's experiment? Send us a photo of it! Kids who send photos can be featured at the very top of our newsletter, with their first name only.</p>
+        {links.photoForm ? (
+          <>
+            <p>A parent or guardian should fill out the form. It asks for the photo, your child's first name, and your permission to share it.</p>
+            <div class="share-actions">
+              <a class="btn btn-primary" href={links.photoForm}>Send us a photo</a>
+              <a class="btn btn-secondary" href={submit}>Or email it to us</a>
+            </div>
+            <p class="small muted">Uploading through the form needs a Google account. If you don't have one, email the photo instead. The email opens with the same questions filled in.</p>
+          </>
+        ) : (
+          <>
+            <p>Parents or guardians, please send it from your own email.</p>
+            <a class="btn btn-primary" href={submit}>Email us a photo</a>
+            <p class="small muted">The email opens with a short form filled in, including a line giving us permission to share the photo with your child's first name only.</p>
+          </>
+        )}
+      </div>
+      <h3 class="featured-h">Featured in the newsletter</h3>
+      <ul class="featured" data-stagger>
+        {[-2, 1.5, -1].map((tilt) => <li class="taped" style={`--tilt:${tilt}deg`}><PhotoPlaceholder label="A kid's experiment photo, chosen from submissions" ratio="1 / 1" /></li>)}
+      </ul>
+    </div>
+  </section>
+
+  {olderRendered.length > 0 && (
+    <section class="section" aria-labelledby="older-h">
+      <div class="wrap">
+        <h2 id="older-h">Past experiments</h2>
+        {olderRendered.map((x) => (
+          <details class="older">
+            <summary><strong>{x.title}</strong> <span class="muted">{monthName(x.month)}</span></summary>
+            <h3>You'll need</h3>
+            <ul>{x.supplies.map((s) => <li>{s}</li>)}</ul>
+            <x.Content />
+          </details>
+        ))}
+      </div>
+    </section>
+  )}
+</Base>
+
+<style>
+  .exp { display: grid; gap: 2.5rem; align-items: start; }
+  @media (min-width: 56rem) { .exp { grid-template-columns: 1fr 22rem; gap: 4rem; } }
+  .exp h2 { font-size: clamp(1.9rem, 1.5rem + 1.2vw, 2.5rem); }
+  .meta { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.5rem; }
+  .meta span { padding: 0.1rem 0.6rem; border: 1px solid var(--rule); border-radius: 4px; font-size: 0.95rem; }
+  .body :global(h2) { font-size: 1.5rem; margin-top: 2rem; }
+  .body :global(ol) { padding-left: 1.4rem; max-width: 40rem; }
+  .body :global(li) { margin-bottom: 0.6rem; padding-left: 0.3rem; }
+  .body :global(li::marker) { font-family: var(--slab); font-weight: 700; color: var(--green); }
+  .body :global(p) { max-width: 40rem; }
+  .side h3 { font-size: 1.2rem; margin: 1.5rem 0 0.4rem; }
+  .exp-fig { margin: 0; }
+  .side :global(.exp-photo) { width: 100%; border-radius: 6px; }
+  .credit { margin-top: 0.4rem; font-size: 0.85rem; color: var(--muted); }
+  .sources { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--line); max-width: 40rem; }
+  .body :global(ul) { padding-left: 1.2rem; max-width: 40rem; }
+  .feature { display: block; margin-top: 0.5rem; color: var(--purple); }
+  .supplies { padding-left: 1.2rem; margin: 0; }
+  .supplies li { margin-bottom: 0.3rem; }
+  .safety { margin-top: 1.5rem; padding: 1rem 1.1rem; background: var(--yellow-tint); border-radius: 8px; }
+  .safety h3 { margin-top: 0; }
+  .safety ul { padding-left: 1.2rem; margin: 0; font-size: 1rem; }
+  .safety li { margin-bottom: 0.3rem; }
+
+  .share { background: var(--purple-tint); }
+  .share-text { max-width: 40rem; }
+  .share-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+  .featured-h { margin: 2.5rem 0 0.75rem; font-size: 1.2rem; }
+  .featured .taped { margin: 0.9rem 0 0; padding-bottom: 1.2rem; }
+  .featured { list-style: none; padding: 0 0.5rem; margin: 0; display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fill, minmax(min(13rem, 100%), 1fr)); }
+  @media (max-width: 39.99rem) {
+    /* Phones: the three featured photos fit in one row. */
+    .featured { grid-template-columns: repeat(3, 1fr); gap: 0.6rem; padding: 0; }
+    .featured .taped { margin-top: 0.7rem; padding: 0.3rem 0.3rem 0.8rem; }
+    .featured .taped::before { width: 2.5rem; height: 0.9rem; top: -0.5rem; }
+    .featured :global(.ph) { padding: 0.4rem; }
+    .featured :global(.ph svg) { width: 1.6rem; height: 1.6rem; }
+    .featured :global(.ph-title) { font-size: 0.75rem; line-height: 1.2; }
+    .featured :global(.ph-label) { display: none; }
+  }
+
+  .older { border-top: 1px solid var(--line); padding-block: 0.9rem; }
+  .older summary { cursor: pointer; }
+  .older h3 { font-size: 1.1rem; margin-top: 1rem; }
+</style>

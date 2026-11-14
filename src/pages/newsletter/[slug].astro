@@ -1,0 +1,201 @@
+---
+import { Image } from 'astro:assets';
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Subscribe from '../../components/Subscribe.astro';
+import { getIssues, contents, teaser, topics, type Issue } from '../../newsletter';
+import { links, issueDate } from '../../site';
+
+export async function getStaticPaths() {
+  const issues = await getIssues();
+  return issues.map((issue, i) => ({
+    params: { slug: issue.slug },
+    props: {
+      issue,
+      newer: issues[i - 1],
+      older: issues[i + 1],
+      // Up to three more issues on the same topic, closest in time first.
+      related: issues
+        .filter((o) => o.id !== issue.id && o.data.topic === issue.data.topic && o.data.topic !== 'other')
+        .sort((a, b) => Math.abs(+a.data.date - +issue.data.date) - Math.abs(+b.data.date - +issue.data.date))
+        .slice(0, 3),
+      isLatest: i === 0,
+    },
+  }));
+}
+
+interface Props { issue: Issue; newer?: Issue; older?: Issue; related: Issue[]; isLatest: boolean }
+const { issue, newer, older, related, isLatest } = Astro.props;
+const { Content, headings } = await render(issue);
+const toc = contents(headings);
+const d = issue.data;
+// For search results and link previews: the opening paragraph without its greeting, cut to about 155 characters.
+const short = teaser(d.summary);
+const description = short ? (short.length > 155 ? `${short.slice(0, 152).replace(/\s+\S*$/, '')}…` : short) : `A ChemQuest newsletter issue from ${issueDate(d.date)}.`;
+---
+<Base title={d.title} description={description}>
+  <article>
+    <header class="issue-head graph">
+      <div class="wrap">
+        <a class="back" href="/newsletter/#all">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M14 8H3M7 3.5 2.5 8 7 12.5" /></svg>
+          All newsletter issues
+        </a>
+        {d.topic !== 'other' && <p class="label"><a href={`/newsletter/?topic=${d.topic}`}>{topics[d.topic]}</a></p>}
+        <h1>{d.title}</h1>
+        <p class="meta">
+          <time datetime={d.date.toISOString().slice(0, 10)}>{issueDate(d.date)}</time>
+          {d.author && <span>By {d.author}</span>}
+          <span>{issue.minutes} min read</span>
+        </p>
+        {!isLatest && <p class="old muted">This is an older issue, so its event dates may have passed and sign-ups may be closed. <a href="/events/">See what's coming up</a>.</p>}
+      </div>
+    </header>
+
+    <div class="wrap body-grid">
+      {toc.length > 1 && (
+        <>
+          <details class="toc toc-phone">
+            <summary>In this issue <span class="muted">({toc.length})</span></summary>
+            <ol>{toc.map((h) => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}</ol>
+          </details>
+          <nav class="toc toc-side" aria-label="In this issue">
+            <h2>In this issue</h2>
+            <ol>{toc.map((h) => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}</ol>
+          </nav>
+        </>
+      )}
+      <div class="prose"><Content /></div>
+    </div>
+  </article>
+
+  <nav class="section more" aria-label="More issues">
+    <div class="wrap">
+      <div class="pager">
+        {older ? (
+          <a class="page older" href={`/newsletter/${older.slug}/`}>
+            <span class="dir">Older issue</span>
+            <span class="pt">{older.data.title}</span>
+            <span class="pd muted">{issueDate(older.data.date)}</span>
+          </a>
+        ) : <span />}
+        {newer && (
+          <a class="page newer" href={`/newsletter/${newer.slug}/`}>
+            <span class="dir">Newer issue</span>
+            <span class="pt">{newer.data.title}</span>
+            <span class="pd muted">{issueDate(newer.data.date)}</span>
+          </a>
+        )}
+      </div>
+
+      {related.length > 0 && (
+        <>
+          <h2 class="rel-h">More on this topic</h2>
+          <ul class="related">
+            {related.map((r) => (
+              <li>
+                {r.thumb ? <Image src={r.thumb} alt="" width={160} height={160} /> : <span class="blank" aria-hidden="true" />}
+                <span>
+                  <a href={`/newsletter/${r.slug}/`}>{r.data.title}</a>
+                  <span class="pd muted">{issueDate(r.data.date)}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p class="all-topic"><a class="go" href={`/newsletter/?topic=${d.topic}`}>All issues in {topics[d.topic]}</a></p>
+        </>
+      )}
+    </div>
+  </nav>
+
+  <section class="sub-band" aria-labelledby="sub-h">
+    <div class="wrap sub-row">
+      <div>
+        <h2 id="sub-h">Get the next issue by email</h2>
+        <p>Every other Sunday we send a free issue with one science topic and ChemQuest news.</p>
+      </div>
+      <div><Subscribe /></div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* The header starts at the same left edge as the text below; long lines stop at the text's width. */
+  .issue-head h1, .issue-head .old { max-width: 42rem; }
+  .issue-head { border-bottom: 1px solid var(--line); padding-block: 1.75rem 2rem; }
+  .back { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 600; font-size: 0.95rem; margin-bottom: 1.25rem; }
+  .back svg { width: 0.95rem; height: 0.95rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .issue-head .label a { color: inherit; text-decoration: none; }
+  .issue-head .label a:hover { text-decoration: underline; }
+  .issue-head h1 { font-size: clamp(1.9rem, 1.4rem + 2vw, 2.8rem); margin-bottom: 0.6rem; }
+  .meta { display: flex; flex-wrap: wrap; gap: 0.2rem 1.4rem; margin: 0; color: var(--muted); font-size: 0.95rem; }
+  .old { margin: 0.9rem 0 0; font-size: 0.85rem; }
+
+  /* The text, with "In this issue" beside it on wide screens and above it on phones. */
+  .body-grid { display: grid; gap: 1.5rem; padding-block: 2rem 3rem; }
+  .toc ol { margin: 0; padding-left: 1.3rem; }
+  .toc li { margin-bottom: 0.35rem; }
+  .toc li::marker { color: var(--green); font-weight: 600; }
+  .toc a { text-decoration: none; color: var(--text); }
+  .toc a:hover { color: var(--green); text-decoration: underline; }
+  .toc-phone { border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); padding: 0.75rem 1rem; }
+  .toc-phone summary { font-weight: 700; cursor: pointer; }
+  .toc-phone ol { margin-top: 0.6rem; }
+  .toc-side { display: none; }
+  .prose { max-width: 42rem; min-width: 0; }
+  @media (min-width: 64rem) {
+    .body-grid { grid-template-columns: minmax(0, 42rem) 15rem; justify-content: space-between; gap: 4rem; padding-top: 2.5rem; }
+    .prose { grid-column: 1; grid-row: 1; }
+    .toc-phone { display: none; }
+    .toc-side { display: block; grid-column: 2; grid-row: 1; position: sticky; top: 6.5rem; align-self: start; font-size: 0.95rem; }
+    .toc-side h2 { font-size: 1.1rem; margin-bottom: 0.6rem; }
+  }
+
+  /* The issue's own text comes from Markdown, so these styles reach inside it. */
+  .prose :global(h2) { font-size: 1.55rem; margin: 2.5rem 0 0.75rem; padding-top: 1.5rem; border-top: 1px solid var(--line); scroll-margin-top: 6rem; }
+  .prose :global(h2:first-child) { margin-top: 0; padding-top: 0; border-top: 0; }
+  .prose :global(h3) { font-size: 1.25rem; margin: 2rem 0 0.5rem; scroll-margin-top: 6rem; }
+  .prose :global(h4) { font-size: 1.05rem; margin: 1.5rem 0 0.4rem; }
+  .prose :global(p), .prose :global(li) { line-height: 1.7; }
+  .prose :global(ul), .prose :global(ol) { padding-left: 1.3rem; margin: 0 0 1.1rem; }
+  .prose :global(li) { margin-bottom: 0.4rem; }
+  .prose :global(li > p) { margin: 0; }
+  .prose :global(li::marker) { color: var(--green); }
+  .prose :global(img) { display: block; width: auto; max-width: 100%; max-height: 32rem; margin: 1.75rem auto; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); }
+  .prose :global(blockquote) { margin: 1.25rem 0; padding: 0.75rem 1.1rem; background: var(--yellow-tint); border-radius: 6px; }
+  .prose :global(blockquote p) { margin: 0; }
+  .prose :global(a) { overflow-wrap: anywhere; }
+  .prose :global(hr) { border: 0; border-top: 1px solid var(--line); margin: 2rem 0; }
+  .prose :global(table) { border-collapse: collapse; width: 100%; font-size: 0.95rem; margin: 1.25rem 0; display: block; overflow-x: auto; }
+  .prose :global(th), .prose :global(td) { border: 1px solid var(--line); padding: 0.4rem 0.6rem; text-align: left; }
+
+  /* Older and newer issues, then related ones. */
+  .more { border-top: 1px solid var(--line); background: var(--surface); }
+  .pager { display: grid; gap: 1rem; }
+  @media (min-width: 40rem) { .pager { grid-template-columns: 1fr 1fr; } .newer { text-align: right; } }
+  .page { display: grid; gap: 0.15rem; padding: 1rem 1.25rem; border: 1px solid var(--rule); border-radius: 8px; background: var(--bg); text-decoration: none; color: var(--text); }
+  .page:hover { border-color: var(--text); }
+  .dir { font-size: 0.85rem; font-weight: 600; color: var(--green); }
+  .pt { font-family: var(--slab); font-weight: 700; font-size: 1.15rem; line-height: 1.25; }
+  .page:hover .pt { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
+  .pd { font-size: 0.85rem; }
+  .rel-h { font-size: 1.3rem; margin: 2.5rem 0 0.75rem; }
+  .related { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(min(17rem, 100%), 1fr)); }
+  /* The whole row (picture included) opens the issue, through the title's link. */
+  .related li { position: relative; display: flex; gap: 0.85rem; align-items: center; }
+  .related a::after { content: ''; position: absolute; inset: 0; }
+  .related li:hover a { text-decoration-thickness: 2px; }
+  .all-topic { margin: 1rem 0 0; }
+  .related img, .related .blank { width: 4rem; height: 4rem; flex: none; object-fit: cover; border-radius: 4px; border: 1px solid var(--line); }
+  .related .blank { background: var(--bg) var(--graph); }
+  .related li > span { display: grid; gap: 0.1rem; line-height: 1.3; }
+  .related a { font-weight: 600; }
+
+  .sub-band { background: var(--purple-tint); border-top: 1px solid var(--line); padding-block: 2rem; }
+  .sub-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem 2rem; }
+  .sub-row h2 { font-size: 1.4rem; margin-bottom: 0.25rem; }
+  .sub-row p { margin: 0; max-width: 34rem; }
+  @media (prefers-reduced-motion: no-preference) {
+    .page { transition: border-color 150ms ease; }
+  }
+</style>

@@ -1,0 +1,370 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import UpcomingEvent from '../components/UpcomingEvent.astro';
+import NoUpcoming from '../components/NoUpcoming.astro';
+import Doodle from '../components/Doodle.astro';
+import { getEvents, getDiscordCounts, links, stats, discordIcon } from '../site';
+import { getIssues } from '../newsletter';
+import hero from '../assets/photos/kids-at-experiment-table.jpg';
+import kidsSmiling from '../assets/photos/kids-smiling.jpg';
+import demoCircle from '../assets/photos/demo-circle.png';
+import iceCream from '../assets/events/2024-01-brandywine.avif';
+import volunteers from '../assets/photos/volunteers-stem-day-2026.jpg';
+
+const { upcoming, past } = await getEvents();
+const next = upcoming[0];
+const eventCount = upcoming.length + past.length;
+const fairCount = [...upcoming, ...past].filter((e) => /science fair/i.test(e.data.title)).length;
+const discord = await getDiscordCounts();
+// Issues on the site, plus the 7 the team sent before moving to beehiiv (Drive drafts 1-7, Dec 2024 to Mar 2025).
+const issuesSent = (await getIssues()).length + 7;
+
+// The headline cycles through these. Keep each one short enough to fit on one line on a phone (about 20 characters).
+// Only list experiments ChemQuest has actually done at an event.
+const makes = [
+  'elephant toothpaste.', 'oobleck.', 'lemon volcanoes.', 'invisible ink.', 'strawberry DNA.', 'slime.',
+  'Cartesian divers.', 'ice cream in a bag.', 'marshmallow towers.', 'soda geysers.', 'homemade playdough.',
+];
+
+const paths = [
+  {
+    who: 'Parents and kids',
+    text: 'Our events are free. Each one lists the ages it’s for and an RSVP link so we bring enough supplies.',
+    href: '/events/', cta: 'Find an event',
+  },
+  {
+    who: 'High school students',
+    text: 'Help teach kids at experiment stations, help set up and clean up, and earn volunteer hours.',
+    href: '/volunteer/', cta: 'Volunteer',
+  },
+  {
+    who: 'Sponsors and donors',
+    text: 'Families never pay, so sponsors and donors cover our supplies. Sponsorships start at $50.',
+    href: '/sponsor/', cta: 'Sponsor & donate',
+  },
+  {
+    who: 'Libraries and learning centers',
+    text: 'Want to host a free event? Our volunteers bring all the supplies and run every station. We just need a room with tables.',
+    href: `mailto:${links.email}?subject=${encodeURIComponent('Hosting a ChemQuest event')}`, cta: 'Email us about hosting',
+  },
+];
+
+// Experiments from past events, as periodic-table tiles. `sym` is the made-up "element symbol" on the
+// front (a few happen to be real ones), and the back explains the science in plain words.
+// Only list experiments ChemQuest has actually done. The explanations follow the team's procedure docs and slides in Drive.
+const experiments = [
+  { sym: 'Cm', name: 'Coke and Mentos eruptions', tint: 'g', science: 'Soda has carbon dioxide gas dissolved in it. Gas bubbles form easily on rough surfaces, and a Mentos is rough all over. When you drop some in, a lot of gas comes out at once and pushes the soda out of the bottle.' },
+  { sym: 'Dn', name: 'Strawberry DNA extraction', tint: 'p', science: 'Kids mash up a strawberry with soap and salt. The soap breaks open the cells, which lets the DNA out. When cold rubbing alcohol is added, the DNA comes together into white strands you can see.' },
+  { sym: 'De', name: 'Density experiments', tint: 'y', science: 'Density is how much matter is packed into a space. Kids pour different liquids into one container and watch where each one ends up. The densest liquid sinks to the bottom and the least dense one stays on top.' },
+  { sym: 'Os', name: 'Oil spill cleanup', tint: 'g', science: 'Kids make a small oil spill in a tray of water and try to clean it up with different materials. Oil floats on water and spreads out, so it’s hard to collect. We talk about how spills like this hurt ocean animals.' },
+  { sym: 'Ph', name: 'Cabbage pH indicator', tint: 'p', science: 'Red cabbage juice changes color when you add an acid or a base. Acids like lemon juice turn it pink or red, and bases like baking soda turn it blue or green. Kids use it to test things from the kitchen.' },
+  { sym: 'Ic', name: 'Homemade ice cream', tint: 'y', science: 'Kids mix cream, sugar, and vanilla in a small bag, put it in a bigger bag with ice and rock salt, and shake. The salt lowers the freezing point of the ice, which makes the ice colder. Heat moves from the cream into the ice, and the cream freezes.' },
+  { sym: 'Lv', name: 'Lemon volcanoes', tint: 'g', science: 'Lemon juice is an acid and baking soda is a base. When they mix, they react and make carbon dioxide gas. The gas makes bubbles, and the foam spills over the lemon.' },
+  { sym: 'Et', name: 'Elephant toothpaste', tint: 'p', science: 'Hydrogen peroxide breaks down into water and oxygen gas, but usually very slowly. Yeast makes it happen fast. Dish soap traps the oxygen in bubbles, so foam comes out of the bottle. The foam is warm because the reaction gives off heat.' },
+  { sym: 'Cd', name: 'Cartesian divers', tint: 'y', science: 'The diver is a pipette with a hex nut on it and a little air inside. Squeezing the bottle pushes water into the pipette and squeezes the air, so the diver gets heavier and sinks. When you let go, the air takes up more room again and the diver floats up.' },
+  { sym: 'Ba', name: 'Carbon dioxide balloons', tint: 'g', science: 'Kids pour vinegar into a bottle, put baking soda in a balloon, and stretch the balloon over the top. When the baking soda falls in, it reacts with the vinegar and makes carbon dioxide gas. The gas fills up the balloon.' },
+  { sym: 'In', name: 'Invisible ink', tint: 'p', science: 'Kids write a message on paper with baking soda and water and let it dry. Then they brush grape juice over it. Grape juice changes color when it touches a base like baking soda, so the message shows up.' },
+  { sym: 'Mt', name: 'Marshmallow towers', tint: 'y', science: 'Kids build towers with toothpicks and mini marshmallows. A square made of toothpicks bends easily, but a triangle keeps its shape. Adding triangles makes a tower stronger, so it can go higher.' },
+  { sym: 'Lu', name: 'Lung model', tint: 'g', science: 'The bottle is the chest. The straws are the trachea and bronchi, and two small balloons are the lungs. A balloon stretched over the bottom is the diaphragm. Pulling it down makes the lungs fill with air, and pushing it up lets the air out.' },
+  { sym: 'Ob', name: 'Oobleck and slime', tint: 'p', science: 'Oobleck is cornstarch and water. When you squeeze it or tap it hard, it feels solid. When you hold it gently, it drips like a liquid. Slime is made from glue and an activator, which connects the glue’s molecules so it stretches.' },
+];
+---
+<Base title="Home" description="ChemQuest is a student-run nonprofit in Glen Mills, PA that hosts free, hands-on science events for kids.">
+  <section class="intro graph">
+    <div class="wrap intro-grid">
+      <div class="intro-text">
+        <h1 class="hero-h">
+          <span class="sr-only">At ChemQuest, kids make {makes.slice(0, -1).join(' ').replaceAll('.', ',')} and {makes.at(-1)}</span>
+          <span aria-hidden="true">
+            At ChemQuest, kids&nbsp;make
+            <span class="swap">{makes.map((m, i) => <span class:list={['word', { on: i === 0 }]}>{m}</span>)}</span>
+          </span>
+        </h1>
+        <p class="lede">We're a nonprofit run by high school students in Glen Mills, PA. We run free, hands-on science events at local libraries and learning centers. Kids do the experiments themselves, and our volunteers help out and answer their questions.</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="/events/">Find an event</a>
+          <a class="btn btn-secondary" href="/volunteer/">Volunteer with us</a>
+        </div>
+        <p class="discord-line">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d={discordIcon} /></svg>
+          <span>You can ask us anything <a href={links.discord}>on our Discord</a>.</span>
+        </p>
+      </div>
+      <div class="hero-art">
+        <figure class="taped snapshot" data-reveal>
+          <Image src={hero} alt="Two girls smiling at an experiment table during a ChemQuest event." widths={[400, 640, 900, 1600]}
+            sizes="(min-width: 56rem) 24rem, 90vw" loading="eager" />
+        </figure>
+        <!-- Drawings around the photo play when clicked. -->
+        <div class="drift d1"><Doodle kind="atom" /></div>
+        <div class="drift d2"><Doodle kind="goggles" /></div>
+        <div class="drift d3"><Doodle kind="thermometer" /></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section next" aria-labelledby="next-h">
+    <div class="wrap">
+      <div class="head-row">
+        <h2 id="next-h">Next event</h2>
+        <a class="go" href="/events/">All events, including past ones</a>
+      </div>
+      <div data-reveal>{next ? <UpcomingEvent event={next} /> : <NoUpcoming />}</div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="paths-h">
+    <div class="wrap paths-grid">
+      <h2 id="paths-h">Ways to get involved</h2>
+      <ul class="paths" data-stagger>
+        {paths.map((p) => (
+          <li>
+            <h3>{p.who}</h3>
+            <p>{p.text}</p>
+            <a class="go" href={p.href}>{p.cta}</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="what-h">
+    <div class="wrap">
+      <div class="what">
+        <div>
+          <h2 id="what-h">What happens at an event</h2>
+          <p>Kids move from table to table in small groups and spend about 15 minutes at each experiment. Volunteers at every table help them through it, but the kids do the experiment themselves.</p>
+          <p>We've also run {fairCount} science fairs where kids present their own projects.</p>
+        </div>
+        <div class="collage" data-stagger>
+          <figure class="taped c-wide" style="--tilt:-1.5deg">
+            <Image src={demoCircle} alt="Kids sitting in a circle watching a volunteer's demonstration." widths={[360, 540, 1600]} sizes="(min-width: 56rem) 22rem, 100vw" />
+          </figure>
+          <figure class="taped" style="--tilt:2deg">
+            <Image src={kidsSmiling} alt="Kids grinning and posing for the camera at an event." widths={[240, 360, 1600]} sizes="(min-width: 56rem) 11rem, 50vw" />
+          </figure>
+          <figure class="taped" style="--tilt:-2.5deg">
+            <Image src={iceCream} alt="Three kids holding bags of homemade ice cream." widths={[240, 360, 1600]} sizes="(min-width: 56rem) 11rem, 50vw" />
+          </figure>
+        </div>
+      </div>
+
+      <h3 class="more-h">More experiments we've done</h3>
+      <p class="more-intro">Each one was a station at a past event. Pick one to see how it works.<span class="swipe-hint"> Swipe sideways for more.</span></p>
+      <ul class="elements" data-stagger>
+        {experiments.map((x, i) => (
+          <li class:list={['element', x.tint]}>
+            <div class="inner">
+              <button class="face front" type="button" aria-expanded="false" aria-controls={`sci-${i}`}>
+                <span class="num">{i + 1}</span>
+                <svg class="turn" viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8a5 5 0 1 1-1.6-3.7M13 2v3h-3" /></svg>
+                <span class="sym" aria-hidden="true">{x.sym}</span>
+                <span class="el-name">{x.name}</span>
+              </button>
+              <p class="face back" id={`sci-${i}`}>{x.science}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="story-h">
+    <div class="wrap story">
+      <div>
+        <h2 id="story-h">Who we are</h2>
+        <p>Two friends who loved chemistry started ChemQuest. Our first event, at Rachel Kohl Library in August 2023, drew more than 20 kids. We've held {eventCount} events so far, all free for families, with more than {stats.registrations} sign-ups, and we've sent {issuesSent} issues of our newsletter. Today ChemQuest is run by students from Garnet Valley and Unionville high schools.</p>
+        <ul class="story-links">
+          <li><a class="go" href="/about/team/">Meet our officers</a></li>
+          <li><a class="go" href="/about/alumni/">Meet our alumni</a></li>
+          <li><a class="go" href="/gallery/">See photos from our events</a></li>
+        </ul>
+      </div>
+      <figure class="taped group-photo" style="--tilt:-1.5deg" data-reveal>
+        <Image src={volunteers} alt="Eight ChemQuest volunteers in matching club t-shirts at the STEM Day at Mathnasium, November 2026." widths={[400, 640, 1600]} sizes="(min-width: 56rem) 22rem, 100vw" />
+      </figure>
+    </div>
+  </section>
+
+  <section class="community" aria-labelledby="community-h">
+    <div class="wrap community-grid">
+      <div class="discord-card" data-reveal>
+        <svg class="dlogo" viewBox="0 0 24 24" aria-hidden="true"><path d={discordIcon} /></svg>
+        <h2 id="community-h">Join the ChemQuest Discord</h2>
+        <p>Anyone in the ChemQuest community who's 13 or older can join, including kids in 7th and 8th grade, parents, and volunteers. We post event news there first, plan events, and answer questions.</p>
+        {discord && (
+          <p class="members"><span data-discord="members">{discord.members}</span> members</p>
+        )}
+        <a class="btn btn-secondary" href={links.discord}>Join the Discord server</a>
+      </div>
+      <div class="news-card">
+        <h2>Get the newsletter</h2>
+        <p>Every other Sunday, our newsletter explains one science topic for kids and families, plus ChemQuest news.</p>
+        <p class="news-links">
+          <a class="go" href={links.newsletterSubscribe}>Subscribe to the newsletter</a>
+          <a class="go" href={links.newsletter}>Read past issues</a>
+        </p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  const motionOK = matchMedia('(prefers-reduced-motion: no-preference)').matches;
+
+  // Headline: go through the experiments kids make once, then stop back on the first one.
+  const words = [...document.querySelectorAll<HTMLElement>('.swap .word')];
+  if (motionOK && words.length > 1) {
+    let i = 0;
+    const timer = setInterval(() => {
+      if (document.hidden) return;
+      const prev = words[i];
+      prev.classList.replace('on', 'off');
+      setTimeout(() => prev.classList.remove('off'), 700);
+      i = (i + 1) % words.length;
+      words[i].classList.add('on');
+      if (i === 0) clearInterval(timer);
+    }, 2800);
+  }
+
+  // Element tiles turn over to show the science.
+  document.querySelectorAll<HTMLElement>('.element').forEach((card) => {
+    const btn = card.querySelector('button')!;
+    card.addEventListener('click', () => btn.setAttribute('aria-expanded', String(card.classList.toggle('flipped'))));
+  });
+</script>
+
+<style>
+  .intro { border-bottom: 1px solid var(--line); overflow: hidden; }
+  .intro-grid { display: grid; gap: 3rem; padding-block: 2.5rem 3.5rem; align-items: center; }
+
+  .hero-h { font-size: clamp(2.3rem, 1.5rem + 3.4vw, 3.9rem); line-height: 1.05; letter-spacing: -0.01em; max-width: 20ch; margin-bottom: 1.6rem; }
+  /* The changing phrase: every option sits in the same grid cell, so the line never jumps. */
+  .swap { display: grid; margin-top: 0.1em; font-size: min(1em, 9vw); white-space: nowrap; overflow: hidden; padding-bottom: 0.08em; }
+  .word { grid-area: 1 / 1; opacity: 0; visibility: hidden; }
+  .word.on { opacity: 1; visibility: visible; }
+  @media (prefers-reduced-motion: no-preference) {
+    /* A plain sweep: the old phrase slides up and fades out as the new one slides up into place. */
+    .word { translate: 0 0.6em; transition: opacity 500ms ease, translate 700ms var(--ease), visibility 0s 700ms; }
+    .word.on { translate: 0 0; transition-delay: 120ms, 120ms, 0s; }
+    .word.off { translate: 0 -0.6em; opacity: 0; visibility: visible; }
+  }
+  .intro .lede { font-size: 1.125rem; }
+  .discord-line { display: flex; align-items: center; gap: 0.6rem; margin: 1.25rem 0 0; font-size: 1rem; }
+  .discord-line svg { width: 1.5rem; height: 1.5rem; flex: none; fill: var(--purple); }
+  .discord-line a { color: var(--purple); font-weight: 600; }
+
+  /* The hero photo, taped in, with clickable drawings scattered around it. */
+  .hero-art { position: relative; margin-inline: 2.5rem 1.5rem; padding-bottom: 2.5rem; }
+  .snapshot { --tilt: 1.5deg; padding-bottom: 2rem; }
+  .snapshot img { aspect-ratio: 4 / 3; object-fit: cover; object-position: 50% 30%; }
+  .drift { position: absolute; z-index: 2; }
+  .drift .toy { width: 100%; }
+  .d1 { width: 5.5rem; top: -1.75rem; left: -2.75rem; }
+  .d2 { width: 6.5rem; bottom: 0.5rem; left: -2.25rem; }
+  .d3 { width: 2.6rem; top: 18%; right: -1.6rem; }
+  @media (min-width: 56rem) {
+    .intro-grid { grid-template-columns: 1fr 24rem; gap: 4.5rem; padding-block: 4rem 4.5rem; }
+    .snapshot img { aspect-ratio: 4 / 5; }
+    .hero-art { margin-inline: 0; }
+    .d1 { width: 7rem; top: -2.5rem; left: -4rem; }
+    .d2 { width: 8rem; bottom: 1rem; left: -5rem; }
+    .d3 { width: 3.2rem; right: -2.5rem; }
+  }
+
+  .next { background: var(--green-tint); }
+  .head-row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0.25rem 1rem; margin-bottom: 1.25rem; }
+  .head-row h2 { margin: 0; }
+
+  .paths-grid { display: grid; gap: 1rem 3rem; }
+  .paths { list-style: none; margin: 0; padding: 0; }
+  .paths li { padding-block: 1.1rem; border-top: 1px solid var(--line); }
+  .paths li:first-child { border-top: 0; padding-top: 0; }
+  .paths h3 { margin-bottom: 0.25rem; }
+  .paths p { margin-bottom: 0.35rem; max-width: 40rem; }
+  @media (prefers-reduced-motion: no-preference) {
+    .paths h3 { transition: translate 400ms var(--ease), color 200ms ease; }
+    .paths li:hover h3 { translate: 0.3rem 0; color: var(--green); }
+  }
+  @media (min-width: 56rem) {
+    .paths-grid { grid-template-columns: 15rem 1fr; }
+    .paths { display: grid; grid-template-columns: 1fr 1fr; column-gap: 2.5rem; }
+    .paths li:nth-child(2) { border-top: 0; padding-top: 0; }
+  }
+
+  .what { display: grid; gap: 2rem; align-items: center; }
+  .what p { max-width: 40rem; }
+  /* Three photos taped in at different angles. */
+  .collage { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem 1rem; padding-inline: 0.5rem; }
+  .collage .taped { margin: 0.8rem 0 0; padding: 0.4rem 0.4rem 1.1rem; }
+  .collage .taped::before { width: 4rem; height: 1.2rem; top: -0.7rem; }
+  .collage img { aspect-ratio: 1; object-fit: cover; }
+  .collage .c-wide { grid-column: span 2; }
+  .collage .c-wide img { aspect-ratio: 16 / 9; }
+  @media (min-width: 56rem) { .what { grid-template-columns: 1fr 24rem; gap: 3rem; } }
+
+  /* Experiments as periodic-table tiles that turn over. */
+  .more-h { font-size: 1.5rem; margin: 3.5rem 0 0.25rem; }
+  .more-intro { margin: 0; color: var(--muted); }
+  .elements { list-style: none; padding: 0; margin: 1.25rem 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(12.5rem, 100%), 1fr)); gap: 0.85rem; }
+  .element { perspective: 1000px; }
+  .inner { display: grid; height: 100%; transform-style: preserve-3d; cursor: pointer; }
+  .face {
+    grid-area: 1 / 1; margin: 0; min-height: 11.5rem; padding: 0.8rem 1rem 1rem; border: 1.5px solid var(--text); border-radius: 6px;
+    backface-visibility: hidden; font: inherit; color: var(--text); text-align: left;
+  }
+  .front { position: relative; display: grid; grid-template-rows: auto 1fr auto; align-items: center; cursor: pointer; }
+  .g .front { background: var(--green-tint); }
+  .p .front { background: var(--purple-tint); }
+  .y .front { background: var(--yellow-tint); }
+  .num { font-family: var(--slab); font-weight: 700; font-size: 1.05rem; font-variant-numeric: lining-nums; }
+  .turn { position: absolute; top: 0.75rem; right: 0.8rem; width: 1.05rem; height: 1.05rem; fill: none; stroke: var(--muted); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .sym { font-family: var(--slab); font-weight: 700; font-size: 3.4rem; line-height: 1; text-align: center; }
+  .el-name { font-size: 0.95rem; font-weight: 600; line-height: 1.3; text-align: center; }
+  .back { background: var(--surface); font-size: 0.95rem; line-height: 1.5; transform: rotateY(180deg); visibility: hidden; display: flex; align-items: center; }
+  .flipped .back { visibility: visible; }
+  @media (prefers-reduced-motion: no-preference) {
+    .element:hover .inner { translate: 0 -4px; rotate: -1.5deg; }
+    .element:nth-child(even):hover .inner { rotate: 1.5deg; }
+    .inner { transition: transform 700ms var(--ease), translate 400ms var(--ease), rotate 400ms var(--ease); }
+    .flipped .inner { transform: rotateY(180deg); }
+    .face { transition: visibility 0s 150ms; }
+  }
+  @media (prefers-reduced-motion: reduce) { .back { transform: none; } }
+  .swipe-hint { display: none; }
+  @media (max-width: 39.99rem) {
+    /* Phones: the tiles sit in one row you swipe through, instead of a long stack. */
+    .swipe-hint { display: inline; }
+    .elements {
+      display: flex; gap: 0.75rem; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory;
+      margin-inline: -1rem; padding: 0.25rem 1rem 0.75rem; scroll-padding-inline: 1rem; scrollbar-width: thin;
+    }
+    .element { flex: 0 0 15rem; scroll-snap-align: start; }
+    .face { min-height: 0; }
+    .sym { font-size: 3rem; padding-block: 0.6rem; }
+    /* Tiles off to the side are already in place (no rise-in wave as they arrive). */
+    :global(.js-reveal) .elements > [data-reveal] { opacity: 1; translate: 0 0; }
+  }
+
+  .story { display: grid; gap: 2rem 3rem; align-items: center; }
+  .story p { max-width: 40rem; }
+  .story-links { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.5rem 2rem; }
+  .story .taped { padding-bottom: 1.4rem; margin-inline: 0.4rem; }
+  .group-photo img { aspect-ratio: 3 / 2; object-fit: cover; object-position: 50% 40%; }
+  @media (min-width: 56rem) { .story { grid-template-columns: 1fr 22rem; } }
+
+  /* Discord and newsletter, on the homepage only. */
+  .community { background: var(--purple-tint); border-top: 1px solid var(--line); padding-block: clamp(2.5rem, 2rem + 2vw, 3.5rem); }
+  .community-grid { display: grid; gap: 1.5rem; align-items: center; }
+  .discord-card { position: relative; background: var(--purple); color: #fff; border-radius: 10px; padding: 1.5rem 1.5rem 1.75rem; }
+  .discord-card h2 { margin-bottom: 0.35rem; padding-right: 3.5rem; }
+  .discord-card p { max-width: 38rem; }
+  .dlogo { position: absolute; top: 1.5rem; right: 1.5rem; width: 2.75rem; fill: #fff; }
+  .members { font-weight: 600; }
+  .news-card h2 { font-size: 1.4rem; margin-bottom: 0.25rem; }
+  .news-card p { margin-bottom: 0.5rem; }
+  .news-links { display: flex; flex-wrap: wrap; gap: 0.35rem 1.5rem; }
+  @media (min-width: 40rem) { .discord-card { padding: 2rem 2rem 2.25rem; } }
+  @media (min-width: 56rem) { .community-grid { grid-template-columns: 1fr 18rem; gap: 3rem; } }
+</style>

@@ -1,0 +1,35 @@
+---
+import Base from '../layouts/Base.astro';
+import Doodle from '../components/Doodle.astro';
+import { links } from '../site';
+---
+<Base title="Page not found" description="We couldn't find that page on the ChemQuest website.">
+  <section class="graph lost">
+    <div class="wrap lost-grid">
+      <div>
+        <h1>We couldn't find that page</h1>
+        <p class="lede">The link might be old, or the page may have moved when we rebuilt the website. One of these should get you where you were going:</p>
+        <ul class="places">
+          <li><a class="go" href="/">Home</a></li>
+          <li><a class="go" href="/events/">Upcoming and past events</a></li>
+          <li><a class="go" href="/volunteer/">Volunteer</a></li>
+          <li><a class="go" href="/at-home/">This month's at-home experiment</a></li>
+          <li><a class="go" href="/contact/">Contact us</a></li>
+        </ul>
+        <p class="small muted">If a link on our own site sent you here, tell us at <a href={`mailto:${links.email}?subject=${encodeURIComponent('Broken link on the website')}`}>{links.email}</a> and we'll fix it.</p>
+      </div>
+      <div class="art">
+        <Doodle kind="spill" class="lost-art" />
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .lost { padding-block: clamp(3rem, 2rem + 5vw, 6rem); }
+  .lost-grid { display: grid; gap: 2rem 4rem; align-items: center; }
+  @media (min-width: 56rem) { .lost-grid { grid-template-columns: 1fr 18rem; } }
+  .places { list-style: none; padding: 0; margin: 0 0 1.5rem; display: grid; gap: 0.4rem; }
+  .art { display: grid; gap: 0.5rem; justify-items: start; }
+  .lost :global(.lost-art) { width: min(18rem, 70%); margin-top: 1.5rem; }
+</style>

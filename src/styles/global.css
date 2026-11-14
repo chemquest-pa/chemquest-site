@@ -1,0 +1,141 @@
+@import '@fontsource-variable/figtree';
+@import '@fontsource-variable/figtree/wght-italic.css';
+
+/* Colors come from the logo (hexagon brown, "Chem" green, "Quest" lavender), deepened
+   until text passes WCAG AA, plus the sunny yellow from the event flyers for decoration only. */
+:root {
+  color-scheme: light;
+  --bg: #ffffff;
+  --surface: #f4f6f3;
+  --text: #1f2220;
+  --muted: #555b56;
+  --line: #e0e4df;
+  --rule: #8f968f;
+  --green: #27702e;
+  --green-dark: #1d5727;
+  --on-green: #ffffff;
+  --green-tint: #e2f5d0;
+  --green-mid: #a6e083;
+  --purple: #643f96;
+  --purple-dark: #513279;
+  --purple-tint: #ecdcf8;
+  --purple-mid: #c7a9ef;
+  --yellow: #ffcd42;
+  --yellow-tint: #fff1c6;
+  --venmo: #0074de;
+  --focus: #643f96;
+  /* Lab-notebook graph paper (an SVG pattern, not a gradient). Only behind page headers. */
+  --graph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cpath d='M28 0H0v28' fill='none' stroke='%23e3e9e2' stroke-width='1'/%3E%3C/svg%3E");
+  /* One easing for everything: starts quickly, settles smoothly, never overshoots. */
+  --ease: cubic-bezier(.22, 1, .36, 1);
+  /* One font for everything: Figtree, a modern open-source sans (used by the Da Vinci Science Center, among others).
+     Its 0 is a plain oval. --slab is the heading role; it's the same font now, kept as a name so headings can change later. */
+  --sans: 'Figtree Variable', system-ui, sans-serif;
+  --slab: var(--sans);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: 6rem; scrollbar-gutter: stable; }
+/* Phones: every size on the site (text and spacing, since they're in rem) is a little smaller. */
+@media (max-width: 40rem) { html { font-size: 93.75%; } }
+html:has(dialog[open]) { overflow: hidden; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+img { max-width: 100%; height: auto; display: block; }
+strong, b { font-weight: 600; }
+
+h1, h2, h3 {
+  font-family: var(--slab);
+  font-weight: 700;
+  line-height: 1.15;
+  margin: 0 0 0.5em;
+  text-wrap: balance;
+  font-variant-numeric: lining-nums;
+}
+h1 { font-size: clamp(1.85rem, 1.5rem + 1.4vw, 2.5rem); }
+h2 { font-size: clamp(1.45rem, 1.3rem + 0.7vw, 1.8rem); }
+h3 { font-size: 1.2rem; font-weight: 600; }
+p { margin: 0 0 1em; text-wrap: pretty; }
+
+a { color: var(--green); text-underline-offset: 0.2em; text-decoration-thickness: 1px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 2px; }
+
+.wrap { width: min(72rem, 100% - 2rem); margin-inline: auto; }
+.section { padding-block: clamp(2.5rem, 2rem + 3vw, 4.5rem); }
+.section + .section { border-top: 1px solid var(--line); }
+.muted { color: var(--muted); }
+.label { font-weight: 600; color: var(--purple); margin: 0 0 0.3em; }
+.lede { font-size: 1.075rem; max-width: 38rem; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.small { font-size: 0.9rem; }
+
+.graph { background-color: var(--bg); background-image: var(--graph); }
+
+/* Buttons: flat fills and thin edges. They darken under the pointer and press down when clicked. */
+.btn {
+  display: inline-flex; align-items: center; gap: 0.5em;
+  padding: 0.7em 1.2em;
+  border-radius: 6px;
+  border: 1.5px solid transparent;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  line-height: 1.2;
+  cursor: pointer;
+}
+.btn svg { width: 1.25em; height: 1.25em; flex: none; fill: currentColor; }
+.btn-primary { background: var(--green); color: var(--on-green); }
+.btn-primary:hover { background: var(--green-dark); }
+.btn-secondary { color: var(--text); background: #fff; border-color: var(--text); }
+.btn-secondary:hover { background: var(--yellow-tint); }
+.btn-discord { background: var(--purple); color: #fff; }
+.btn-discord:hover { background: var(--purple-dark); }
+.actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.5rem; }
+
+/* Text links that lead somewhere next (bold, no arrow). */
+.go { font-weight: 600; }
+
+.skip { position: absolute; left: -999px; }
+.skip:focus { left: 1rem; top: 1rem; z-index: 30; background: var(--surface); padding: 0.5rem 1rem; }
+
+/* Photos you can click to see bigger (set up by the script in Base.astro). */
+img[data-zoom] { cursor: zoom-in; }
+
+/* A photo taped into the notebook: white border, a strip of tape, a slight tilt.
+   Set --tilt on the element to change the angle. It straightens out under the pointer. */
+.taped {
+  position: relative; margin: 0.9rem 0.4rem 0; padding: 0.5rem 0.5rem 1.6rem;
+  background: #fff; border: 1px solid var(--rule); border-radius: 3px; rotate: var(--tilt, 1.5deg);
+}
+.taped::before {
+  content: ''; position: absolute; z-index: 1; top: -0.85rem; left: 50%; translate: -50% 0; rotate: -3deg;
+  width: 5.5rem; height: 1.5rem; background: color-mix(in srgb, var(--yellow) 70%, transparent);
+}
+.taped img { width: 100%; border-radius: 0; }
+
+/* Clickable drawings (see Doodle.astro). */
+.toy { display: block; padding: 0; margin: 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; border-radius: 8px; }
+.toy svg { width: 100%; height: auto; }
+
+/* Motion: only for visitors who haven't asked their device to reduce it. Smooth, never bouncy. */
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+  .btn { transition: background-color 150ms ease, color 150ms ease, scale 150ms ease; }
+  .btn:active { scale: 0.97; }
+  a { transition: text-decoration-thickness 150ms ease, color 150ms ease; }
+
+
+  .taped { transition: rotate 600ms var(--ease), scale 600ms var(--ease); }
+  .taped:hover { rotate: 0deg; scale: 1.02; }
+
+  .toy svg { transition: rotate 500ms var(--ease), scale 500ms var(--ease); }
+  .toy:hover svg { scale: 1.05; }
+  .toy:active svg { scale: 0.97; }
+}

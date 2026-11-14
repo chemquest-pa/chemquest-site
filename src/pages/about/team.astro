@@ -1,0 +1,94 @@
+---
+import { Image } from 'astro:assets';
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/PageHead.astro';
+import PhotoPlaceholder from '../../components/PhotoPlaceholder.astro';
+
+const team = await Promise.all(
+  (await getCollection('team'))
+    .sort((a, b) => a.data.order - b.data.order)
+    .map(async (p) => ({ ...p.data, hasBio: !!p.body?.trim(), Bio: (await render(p)).Content })),
+);
+// Photos and bios: add a `photo:` line and text under the `---` in each officer's file.
+// If there are fewer officer files than `slots`, empty badges fill the page up to that number.
+const slots = 10;
+const placeholders = Math.max(0, slots - team.length);
+---
+<Base title="Our team" description="Meet the high school students who run ChemQuest.">
+  <PageHead title="Our team" doodle="microscope">
+    Meet our 2026–27 officers. ChemQuest is run entirely by high school students, and each officer leads one part of the work, carrying on what our <a href="/about/alumni/">founders</a> started.
+  </PageHead>
+
+  <section class="section" aria-label="Officers">
+    <div class="wrap">
+      <ul class="badges" data-stagger>
+        {team.map(({ name, role, school, photo, hasBio, Bio }) => (
+          <li class="badge" data-play>
+            <div class="card">
+              {photo
+                ? <Image src={photo} alt={`Portrait of ${name}.`} widths={[240, 400, 1600]} sizes="(min-width: 40rem) 18rem, 90vw" />
+                : <PhotoPlaceholder label={name} ratio="1 / 1" />}
+              <p class="role">{role}</p>
+              <h2>{name}</h2>
+              {school && <p class="school">{school}</p>}
+              <div class:list={['bio', { soon: !hasBio }]}>{hasBio ? <Bio /> : <p>Bio coming soon.</p>}</div>
+            </div>
+          </li>
+        ))}
+        {Array.from({ length: placeholders }, () => (
+          <li class="badge empty" data-play>
+            <div class="card">
+              <PhotoPlaceholder label="Officer photo" ratio="1 / 1" />
+              <p class="role">Role coming soon</p>
+              <h2>Officer name</h2>
+              <div class="bio"><p>Bio coming soon.</p></div>
+            </div>
+          </li>
+        ))}
+      </ul>
+      <p class="join">Want to join the team? Every officer started as a volunteer. <a href="/volunteer/">Here's how to volunteer.</a></p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* Each officer gets a lab ID badge, clipped on at the top. Point at one and it sways on its clip. */
+  .badges { list-style: none; padding: 0; margin: 0; display: grid; gap: 2rem 1.5rem; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); }
+  .card {
+    position: relative; height: 100%; background: var(--surface); border: 1px solid var(--rule); border-radius: 8px;
+    padding: 1.6rem 1rem 1rem; transform-origin: 50% 0.75rem;
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0.5rem; left: 50%; translate: -50% 0;
+    width: 2.75rem; height: 0.5rem; border-radius: 1rem; border: 1px solid var(--rule); background: var(--bg);
+  }
+  .badge:nth-child(3n + 1) .card::before { background: var(--green-tint); }
+  .badge:nth-child(3n + 2) .card::before { background: var(--purple-tint); }
+  .badge:nth-child(3n) .card::before { background: var(--yellow-tint); }
+  .card img, .card :global(.ph) { width: 100%; aspect-ratio: 1; object-fit: cover; object-position: 50% 20%; border-radius: 4px; }
+  .role { font-size: 1rem; font-weight: 600; color: var(--purple); margin: 0.9rem 0 0.2rem; line-height: 1.3; }
+  .card h2 { font-size: 1.4rem; margin: 0; }
+  .school { color: var(--muted); font-size: 1rem; margin: 0.1rem 0 0; }
+  .bio { font-size: 1rem; margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px dashed var(--line); }
+  .bio :global(p) { margin: 0; }
+  .empty .role, .empty h2, .empty .bio, .bio.soon { color: var(--muted); }
+  .join { margin-top: 2.5rem; }
+  @media (max-width: 39.99rem) {
+    /* Phones: two badges side by side. */
+    .badges { grid-template-columns: repeat(2, 1fr); gap: 1rem 0.75rem; }
+    .card { padding: 1.3rem 0.6rem 0.75rem; }
+    .card::before { top: 0.45rem; width: 2rem; height: 0.4rem; }
+    .role { font-size: 0.8rem; margin-top: 0.6rem; }
+    .card h2 { font-size: 1.05rem; }
+    .school, .bio { font-size: 0.85rem; }
+    .card :global(.ph) { padding: 0.5rem; }
+    .card :global(.ph svg) { width: 1.8rem; height: 1.8rem; }
+    .card :global(.ph-title) { font-size: 0.8rem; }
+    .card :global(.ph-label) { display: none; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .badge:global(.play) .card { animation: badge-sway 1.6s ease-in-out; }
+  }
+  @keyframes badge-sway { 25% { rotate: 2.5deg; } 55% { rotate: -1.5deg; } 80% { rotate: 0.5deg; } }
+</style>

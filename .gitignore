@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.astro/
+.claude/
+9b7a.html
+font-comparison.png
+# Internal notes for the presidents and the build history; kept on the computer, not on the public site repository.
+PRESIDENTS.md
+REVIEW.md
