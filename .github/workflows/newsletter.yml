@@ -1,6 +1,8 @@
 # Copies new newsletter issues from beehiiv into the website, saves them to GitHub, and publishes.
-# Runs on its own on Sunday night and Monday afternoon (issues go out on Sundays), and you can run it
-# by hand from the Actions tab ("Import newsletter" > "Run workflow").
+# Issues go out at 11 AM Eastern on Sundays (every other week). This checks every 15 minutes from about
+# 11:07 AM to 12:52 PM Eastern on Sundays, plus once on Monday morning in case an issue went out late.
+# A check that finds nothing new just stops, so the off weeks cost nothing. You can also run it by hand
+# from the Actions tab ("Import newsletter" > "Run workflow").
 #
 # It publishes in the same run because GitHub doesn't start the "Publish website" job for changes
 # that a job saves itself. It uses the same two Cloudflare secrets as deploy.yml.
@@ -10,8 +12,11 @@ name: Import newsletter
 
 on:
   schedule:
-    - cron: '17 2 * * 1'   # Sunday about 9:15 PM Eastern (Monday 02:17 UTC; off the hour, when GitHub is less busy)
-    - cron: '17 19 * * 1'  # Monday 2 PM Eastern
+    # GitHub's clock is UTC, and Eastern time shifts by an hour for daylight saving, so both hours are covered.
+    # Minutes are off the hour on purpose: GitHub is busiest (and slowest to start jobs) right on the hour.
+    - cron: '7,22,37,52 15 * * 0'  # Sundays 11:07 AM to 11:52 AM Eastern in summer (10:07 to 10:52 AM in winter)
+    - cron: '7,22,37,52 16 * * 0'  # Sundays 11:07 AM to 11:52 AM Eastern in winter (12:07 to 12:52 PM in summer)
+    - cron: '17 14 * * 1'          # Monday morning backup (about 9 or 10 AM Eastern)
   workflow_dispatch:
 
 concurrency:

@@ -44,7 +44,7 @@ Every link the site uses (forms, Discord, Instagram, Venmo, email, phone numbers
 
 ## Newsletter
 
-Keep writing and sending the newsletter in beehiiv like always. The website copies each new issue by itself the night it goes out.
+Keep writing and sending the newsletter in beehiiv like always. The website copies each new issue by itself, usually within 15 to 30 minutes of it going out at 11 AM on Sunday.
 
 After a new issue appears on the site, take 5 minutes to check its file in `src/content/newsletter`:
 
