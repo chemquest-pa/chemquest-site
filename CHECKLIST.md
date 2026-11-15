@@ -95,7 +95,7 @@ Changes to the original site that the presidents should OK (like the new sponsor
 - [x] Phone numbers changed to 267-541-8492 and 484-995-5992 (from a president, round 11).
 - [x] Alumni grouped as "Class of 2024 graduates" (Charlotte, Matthew, and Bethsaida, with her bio) and "Class of 2026 graduates" (round 11).
 
-- [x] STEM Day photos (round 10): from the "Photos" folder in Drive, 34 photos reviewed and 8 used: the event cover, 6 gallery photos, and the volunteer group photo on the homepage. Scaled down to 1,600px, with photo location data removed and two volunteer name tags blurred. The 2 videos aren't used.
+- [x] STEM Day photos (round 10): from the "Photos" folder in Drive, 34 photos reviewed and 8 used: the event cover, 6 gallery photos, and the officer group photo on the homepage. Scaled down to 1,600px, with photo location data removed. (Round 17: the group photo was swapped for one where no one is blinking, with name tags left as they are.) The 2 videos aren't used.
 - [x] Phone menu sub-pages are a list in a white panel (round 10).
 
 - [x] Phone layout (round 9): smaller text everywhere, small-print footer, a new phone menu (no element tiles), experiment tiles in one swipeable row, and two-across officer badges and gallery photos.
