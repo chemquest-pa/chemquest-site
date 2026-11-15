@@ -78,9 +78,9 @@ The site already has a sitemap (`/sitemap-index.xml`), a `robots.txt`, and canon
 ## 6. The old websites
 
 **The old WordPress site (chemquest.woob.site).** It's hosted by Woobsites (a small web company, on Hostinger), and ChemQuest doesn't own the `woob.site` domain, which renews May 11, 2027.
-1. Now: in WordPress, trash the "Experimental :)" page (`/additional/`) and the sample "Hello world" post. Stop editing the old site.
-2. Make sure a current officer has an Administrator login with the club email, not only a graduate's personal account.
-3. At launch: install the free **Redirection** plugin and add 301 redirects to the new domain: `/get-involved/` → `/volunteer/`, `/sponsorships/` → `/sponsor/`, `/our-team/` → `/about/team/`, `/alumni/` → `/about/alumni/`, and everything else to the same path. Then in Search Console (verified for both sites), use **Change of Address**.
+1. **Done (November 14, 2026):** every old page now sends visitors to its match on the new site with a permanent (301) redirect, made with the free **Redirection** plugin (WordPress → Tools → Redirection). The "Experimental :)" page and the sample "Hello world" post redirect to the new homepage. Logging is off, so no visitor data is stored.
+2. **When the club gets its own domain:** in Tools → Redirection, change each target from chemquest.pages.dev to the new domain (or leave them: chemquest.pages.dev will forward to the domain anyway). Then in Google Search Console (verified for both sites), use **Change of Address**.
+3. Make sure a current officer has an Administrator login with the club email, not only a graduate's personal account. Don't delete the WordPress site or the plugin, or the redirects stop.
 4. Keep the old site and its redirects up for at least a year, then delete it.
 5. Free alternative to buying a domain: ask Woobsites to point `chemquest.woob.site` at Cloudflare (a CNAME to `chemquest.pages.dev`, after adding it under Custom domains). It's free, but the address still depends on someone else's domain.
 
