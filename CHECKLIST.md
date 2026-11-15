@@ -9,8 +9,7 @@ Changes to the original site that the presidents should OK (like the new sponsor
 ## Placeholders showing on the site right now
 
 - [ ] **Photos (coming to Drive).** You're adding a batch of photos to Google Drive. Once they're there, I'll use them for the items below.
-- [ ] **Officer bios (all 10).** Every badge says "Bio coming soon." Write one or two sentences in each officer's file in `src/content/team/`, under the `---`. (Last year's bios described last year's roles, so I didn't reuse them.)
-- [ ] **Officer photos (all 10).** Every badge shows "Photo coming soon" until new photos come in. Put each photo (square or portrait) in `src/assets/team/` and add a `photo:` line to the officer's file in `src/content/team/`, like `photo: ../../assets/team/andrea-yao.avif`. Last year's photos are still in that folder if you want any back.
+- [ ] **Officer bios and photos: 5 of 10 still to come.** Done: Andrea Yao, Andrea Hoang (last year's photo, at her request), Aarna Yogish, Anandi Pingle, Connor Liu. Still waiting on: Ethan Ruslim, Matilda Duong, Srinita Paul Chowdhury, Aneesha Chennareddy, and Lucas Zhao. Each officer is one file in `src/content/team/`: the bio goes under the second `---`, and the photo goes in `src/assets/team/` with a `photo:` line (see EDITING.md, "Officers").
 - [ ] **Officer school and grade** (optional): add a `school:` line, like `school: Junior, Garnet Valley High School`.
 - [ ] **Role titles.** From the Drive doc, I wrote the roles as Co-President, Vice President, Technology Chair, Volunteer Management Chair, Fundraising and Finance Chair, and Advertising Chair. Check those titles.
 - [ ] **Group photo on the homepage.** "Who we are" now shows the eight volunteers in ChemQuest shirts from STEM Day (`src/assets/photos/volunteers-stem-day-2026.jpg`). Swap it for an officer group photo once you have one, and check that everyone in it is OK being on the site.
