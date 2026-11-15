@@ -85,7 +85,7 @@ The site already has a sitemap (`/sitemap-index.xml`), a `robots.txt`, and canon
 5. Free alternative to buying a domain: ask Woobsites to point `chemquest.woob.site` at Cloudflare (a CNAME to `chemquest.pages.dev`, after adding it under Custom domains). It's free, but the address still depends on someone else's domain.
 
 **The beehiiv site (chemquests-newsletter.beehiiv.com).** Keep it: it sends the emails, has the subscribe page, and the import reads from it. Don't pay for a custom domain there (about $49 a month).
-- Fix its Archive page (sample travel posts) and its five placeholder social links, and add a link to the website's Newsletter page.
+- **Done (November 15, 2026):** the Archive page shows the real issues (it used to show beehiiv's sample travel posts), the fake social icons (X, TikTok, YouTube, Threads, Bluesky) are gone, the Discord icon now goes to the current server (it went to "ChemQuest (old)"), and the footer links to chemquest.pages.dev. Social links live in Website → Settings → Socials. The free plan can't edit the beehiiv site through Claude's beehiiv connector, so changes are made in the site editor.
 - After launch, consider turning off "Discoverable on the web" (Website → Builder → Settings → Site settings → SEO & sharing) so Google sends people to the website's archive. Afterward, check that the import still works (`npm run newsletter -- --out test --all`).
 
 **Also found: an old Wix site** (`chemquestpa.wixsite.com/chemquest`), still showing an April event. ChemQuest controls it, so either replace its home page with "We've moved to chemquestpa.org" or unpublish it. Update any Drive email templates that still link to it.

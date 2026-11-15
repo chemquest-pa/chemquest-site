@@ -68,7 +68,6 @@ Changes to the original site that the presidents should OK (like the new sponsor
 
 ## Outside the website
 
-- [ ] **beehiiv "View all" page.** The newsletter's homepage lists real ChemQuest issues, but its Archive page (chemquests-newsletter.beehiiv.com/archive, where both "View all" buttons go) shows beehiiv's sample travel posts. Fix that page in beehiiv's website builder, or point beehiiv's "View all" buttons to the new Newsletter page once the site has its final address.
 - [ ] **Old WordPress site:** unpublish the "Experimental :)" page.
 
 ## Before launch
@@ -80,6 +79,7 @@ Changes to the original site that the presidents should OK (like the new sponsor
 
 ## Done
 
+- [x] beehiiv site tidied (Nov 15, 2026): Archive page shows the real issues, fake social icons removed, Discord icon points to the current server instead of "ChemQuest (old)", footer links to chemquest.pages.dev.
 - [x] Newsletter template (Template tab of "Newsletter IDEAS + TEMPLATE" in Drive) cleaned up: a how-to note, a line linking to the website, simpler sections, shorter volunteer and feedback blocks, and the current Discord invite (round 16). A footer link in every email would need a paid beehiiv plan, so the link lives in the template.
 
 - [x] GitHub organization chemquest-pa and public repository chemquest-site, with the site uploaded (round 16). Cloudflare Web Analytics on. Google structured data on the homepage. Editing guide rewritten for new officers.
