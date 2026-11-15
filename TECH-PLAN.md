@@ -8,7 +8,7 @@ How to launch the new website, get it found, retire the old sites, and keep Chem
 |---|---|---|
 | **The website** (Astro, hosted free on Cloudflare Pages) | Every page: events, volunteer, sponsor, about, and the newsletter archive | Technology Chairs, on GitHub |
 | **beehiiv** | Writing and emailing each newsletter, and the subscriber list | Newsletter writers |
-| **The import script** | Copies each new beehiiv issue onto the website | Runs by itself on Sundays right after the 11 AM issue goes out (checks every 15 minutes until about 1 PM) |
+| **The import script** | Copies each new beehiiv issue onto the website | Runs by itself on Sundays right after the 11 AM issue goes out (checks every 15 minutes until about 1 PM, then hourly through Monday). GitHub sometimes skips scheduled runs, so the Sunday Claude tidy task also runs it as a backup. If an issue is still missing: Actions → Import newsletter → Run workflow |
 
 Astro is the tool that builds the website. beehiiv is still the newsletter's home. Writers don't need to change anything: they write and send in beehiiv as they do now, and the website picks the issue up.
 
