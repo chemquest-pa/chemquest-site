@@ -1,0 +1,12 @@
+# Cloudflare timer that starts the "Import newsletter" GitHub workflow (see newsletter-timer.js).
+# Publish changes with:  cd automation  then  npx wrangler deploy
+name = "chemquest-newsletter-timer"
+main = "newsletter-timer.js"
+compatibility_date = "2026-11-01"
+account_id = "b6b5e5cad0980391f50f4b44424291e4"
+workers_dev = false # no public web address needed
+
+[triggers]
+# Times are UTC. Sundays every 15 minutes from 10:07 AM to 12:52 PM Eastern in winter
+# (11:07 AM to 1:52 PM in summer), plus a Monday morning backup.
+crons = ["7,22,37,52 15-17 * * SUN", "17 14 * * MON"]
