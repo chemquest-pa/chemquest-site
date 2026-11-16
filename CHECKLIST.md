@@ -24,7 +24,7 @@ Changes to the original site that the presidents should OK (like the new sponsor
 
 - [ ] **beehiiv's own sign-up page** (the purple "Join the ChemQuest Community!" page): in beehiiv's website builder, add a line under the heading saying what subscribers get (one email every other Sunday with a science topic and ChemQuest news, free, unsubscribe anytime), and use the full-size logo.
 
-- [ ] **Finish GitHub** (github.com/chemquest-pa/chemquest-site): add the Cloudflare API token, finish the branch rule, run "Publish website" once, and invite the Technology Chairs. Steps in TECH-PLAN.md, section 3.
+- [ ] **Invite the Technology Chairs to GitHub** (github.com/orgs/chemquest-pa/people → Invite member; make one an Owner). The rest of the GitHub setup is done. Steps in TECH-PLAN.md, section 3.
 - [ ] **beehiiv editors.** beehiiv's free plan allows one login. Either the writers share the club's login, or upgrade: Lite allows 2 people (about $49 a month billed yearly, up to 1,000 subscribers), and Pro allows 10 (about $95 a month billed yearly). On a paid plan, a "Contributor" can write and edit posts without being able to send them. The website side is free either way.
 - [ ] **The first 7 issues (optional).** Drive drafts 1 to 7 (December 2024 to March 2025) were sent before the newsletter moved to beehiiv, so they aren't in the website's archive. They're mostly STEM news and summer-program listings with 2025 deadlines. Decide whether to add them; I'd leave them out.
 - [ ] **Pictures copied from other websites** in past issues, now also shown on the club's site. A newsletter email is gone in a day, but the website keeps them up. Replace or remove the ones you don't have permission for:
@@ -69,7 +69,6 @@ Changes to the original site that the presidents should OK (like the new sponsor
 
 ## Outside the website
 
-- [ ] **Old WordPress site:** unpublish the "Experimental :)" page.
 
 ## Before launch
 
