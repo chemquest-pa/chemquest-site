@@ -8,6 +8,7 @@ Changes to the original site that the presidents should OK (like the new sponsor
 
 ## Placeholders showing on the site right now
 
+- [ ] **Renew the newsletter timer's GitHub token** before it expires (about November 2027; GitHub emails a reminder). Steps are in TECH-PLAN.md, section 3.
 - [ ] **Photos (coming to Drive).** You're adding a batch of photos to Google Drive. Once they're there, I'll use them for the items below.
 - [ ] **Officer bios and photos: 4 of 10 still to come.** Done: Andrea Yao, Andrea Hoang (last year's photo, at her request), Aarna Yogish, Anandi Pingle, Connor Liu, Ethan Ruslim. Still waiting on: Matilda Duong, Srinita Paul Chowdhury, Aneesha Chennareddy, and Lucas Zhao (the Technology Chair). Each officer is one file in `src/content/team/`: the bio goes under the second `---`, and the photo goes in `src/assets/team/` with a `photo:` line (see EDITING.md, "Officers").
 - [ ] **Officer school and grade** (optional): add a `school:` line, like `school: Junior, Garnet Valley High School`.
@@ -79,6 +80,7 @@ Changes to the original site that the presidents should OK (like the new sponsor
 
 ## Done
 
+- [x] Newsletter import timer (Nov 15, 2026): GitHub's schedule never ran, so a free Cloudflare timer now starts the import every 15 minutes after the Sunday 11 AM send. Tested and working.
 - [x] beehiiv site tidied (Nov 15, 2026): Archive page shows the real issues, fake social icons removed, Discord icon points to the current server instead of "ChemQuest (old)", footer links to chemquest.pages.dev.
 - [x] Newsletter template (Template tab of "Newsletter IDEAS + TEMPLATE" in Drive) cleaned up: a how-to note, a line linking to the website, simpler sections, shorter volunteer and feedback blocks, and the current Discord invite (round 16). A footer link in every email would need a paid beehiiv plan, so the link lives in the template.
 

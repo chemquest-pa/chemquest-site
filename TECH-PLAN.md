@@ -8,7 +8,7 @@ How to launch the new website, get it found, retire the old sites, and keep Chem
 |---|---|---|
 | **The website** (Astro, hosted free on Cloudflare Pages) | Every page: events, volunteer, sponsor, about, and the newsletter archive | Technology Chairs, on GitHub |
 | **beehiiv** | Writing and emailing each newsletter, and the subscriber list | Newsletter writers |
-| **The import script** | Copies each new beehiiv issue onto the website | Runs by itself on Sundays right after the 11 AM issue goes out (checks every 15 minutes until about 1 PM, then hourly through Monday). GitHub sometimes skips scheduled runs, so the Sunday Claude tidy task also runs it as a backup. If an issue is still missing: Actions → Import newsletter → Run workflow |
+| **The import script** | Copies each new beehiiv issue onto the website | Runs by itself on Sundays right after the 11 AM issue goes out. GitHub's own schedule never fired for this repository, so a free Cloudflare timer (Workers & Pages → **chemquest-newsletter-timer**, code in `automation/`) starts it every 15 minutes from 11:07 AM to about 1 PM, plus Monday morning. The Sunday Claude tidy task is a second backup. If an issue is still missing: Actions → Import newsletter → Run workflow |
 
 Astro is the tool that builds the website. beehiiv is still the newsletter's home. Writers don't need to change anything: they write and send in beehiiv as they do now, and the website picks the issue up.
 
@@ -36,6 +36,8 @@ GitHub keeps the website's files, lets several people edit them, and publishes e
 4. Invite the Technology Chairs: github.com/orgs/chemquest-pa/people → Invite member. Make at least one of them an **Owner**, so the club doesn't depend on one person.
 
 **Day to day:** open a file on github.com, click the pencil, edit, then **Commit changes**. The site updates in about two minutes. Bigger changes: edit on your computer, preview with `npm run dev`, then Commit and Push in GitHub Desktop. To undo something, open the file's History and revert it.
+
+**The newsletter timer's GitHub token expires** (about a year after November 15, 2026). When it does, new issues stop appearing on their own. To renew it: make a new fine-grained token at github.com/settings/personal-access-tokens/new (owner **chemquest-pa**, only the **chemquest-site** repository, permission **Actions: Read and write**), then in a terminal run `npx.cmd --yes wrangler@4 secret put GITHUB_TOKEN --name chemquest-newsletter-timer` and paste it. The token currently belongs to the account of the person who set it up; when Technology Chairs change, have a current one make a new token.
 
 **Two things to know:**
 - GitHub pauses scheduled jobs in a public repository after 60 days with no changes (summer). If new issues stop appearing, Actions → Import newsletter → Enable workflow / Run workflow.
