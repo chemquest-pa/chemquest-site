@@ -15,7 +15,6 @@ Changes to the original site that the presidents should OK (like the new sponsor
 - [ ] **Role titles.** From the Drive doc, I wrote the roles as Co-President, Vice President, Technology Chair, Volunteer Management Chair, Fundraising and Finance Chair, and Advertising Chair. Check those titles.
 - [ ] **Group photo on the homepage.** "Who we are" now shows the eight volunteers in ChemQuest shirts from STEM Day (`src/assets/photos/volunteers-stem-day-2026.jpg`). Swap it for an officer group photo once you have one, and check that everyone in it is OK being on the site.
 - [ ] **Gallery photos for each event.** Put them in `src/assets/gallery/<event file name>/`.
-- [ ] **Tax ID (EIN)** on the Sponsor page. It says "Our tax ID (EIN) is coming soon." Fill in `ein` near the top of `src/pages/sponsor.astro`.
 - [ ] **"Featured in the newsletter" photos** on the Try at home page: three placeholders until kids' photos come in (`src/pages/at-home.astro`).
 
 ## Newsletter section
@@ -52,7 +51,7 @@ Changes to the original site that the presidents should OK (like the new sponsor
 
 ## Decisions for you
 
-- [ ] **Taxes (presidents):** confirm the 990-N e-Postcard for July 2025 to June 2026 is filed (TECH-PLAN.md, section 7).
+- [x] **Taxes (presidents):** confirm the 990-N e-Postcard for July 2025 to June 2026 is filed (TECH-PLAN.md, section 7).
 - [ ] **Shared logins:** keep club passwords in a password manager, not in Google Docs (TECH-PLAN.md, section 7).
 
 - [ ] **Our safety tips** on the Try at home page (an adult hands out the tablets; leave the cap off while it bubbles) are ChemQuest's own, not from Science Bob or PBS. Keep or cut them.
@@ -74,7 +73,7 @@ Changes to the original site that the presidents should OK (like the new sponsor
 
 - [ ] **Final address.** The draft is at https://chemquest.pages.dev (Cloudflare Pages project "chemquest", in your Cloudflare account). When you move to a real domain (for example, pointing chemquest.woob.site at it in Cloudflare), change `site:` in `astro.config.mjs` to match and upload again.
 - [ ] **Custom domain.** Some networks and school-managed laptops refuse to look up `pages.dev` addresses ("server IP address could not be found"), because scammers misuse them. The site itself is fine. A real domain (for example chemquestpa.org, about $10–15 a year) avoids this and is needed for launch anyway. Connect it in Cloudflare under Workers & Pages → chemquest → Custom domains.
-- [ ] **Officers review the draft** at https://chemquest.pages.dev. Anyone with the link can see it, but it isn't linked from anywhere.
+- [x] **Officers review the draft** at https://chemquest.pages.dev. Anyone with the link can see it, but it isn't linked from anywhere.
 - [ ] **Test on real phones** (an iPhone and an Android) and with a screen reader. The automated tests can't fully cover these.
 
 ## Done
