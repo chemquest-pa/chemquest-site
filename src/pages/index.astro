@@ -4,7 +4,7 @@ import Base from '../layouts/Base.astro';
 import UpcomingEvent from '../components/UpcomingEvent.astro';
 import NoUpcoming from '../components/NoUpcoming.astro';
 import Doodle from '../components/Doodle.astro';
-import { getEvents, getDiscordCounts, links, stats, discordIcon } from '../site';
+import { getEvents, getDiscordCounts, links, discordIcon } from '../site';
 import { getIssues } from '../newsletter';
 import hero from '../assets/photos/kids-at-experiment-table.jpg';
 import kidsSmiling from '../assets/photos/kids-smiling.jpg';
@@ -174,7 +174,7 @@ const experiments = [
     <div class="wrap story">
       <div>
         <h2 id="story-h">Who we are</h2>
-        <p>Two friends who loved chemistry started ChemQuest. Our first event, at Rachel Kohl Library in August 2023, drew more than 20 kids. We've held {eventCount} events so far, all free for families, with more than {stats.registrations} sign-ups, and we've sent {issuesSent} issues of our newsletter. Today ChemQuest is run by students from Garnet Valley and Unionville high schools.</p>
+        <p>Two friends who loved chemistry started ChemQuest. Our first event, at Rachel Kohl Library in August 2023, drew more than 20 kids. We've held {eventCount} events so far, all free for families, and we've sent {issuesSent} issues of our newsletter. Today ChemQuest is run by students from Garnet Valley and Unionville high schools.</p>
         <ul class="story-links">
           <li><a class="go" href="/about/team/">Meet our officers</a></li>
           <li><a class="go" href="/about/alumni/">Meet our alumni</a></li>

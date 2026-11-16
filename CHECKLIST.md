@@ -46,8 +46,6 @@ Changes to the original site that the presidents should OK (like the new sponsor
 
 ## Numbers to confirm
 
-- [ ] **Registrations.** The tile says "130+". Ask the president for the exact total from the sign-up forms, then set `registrations` in `src/site.ts`. (An exact number reads as more real than a round one.)
-- [ ] **Newsletter frequency and reach.** The Sponsor page says "200–300 views per issue". Officer bios said "biweekly". Is "1,000+ followers" still accurate?
 
 ## Decisions for you
 

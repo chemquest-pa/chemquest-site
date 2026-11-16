@@ -30,10 +30,6 @@ export const newsletterForm = `<script async src="https://subscribe-forms.beehii
 // The "Thank you to our sponsors" list only appears once there's at least one.
 export const sponsors: { name: string; url?: string }[] = [];
 
-// Numbers on the homepage tiles. Event counts are worked out automatically; update these by hand.
-// Sign-ups across all events, mentioned in "Who we are" on the homepage. Update it when the total changes.
-export const stats = { registrations: 130 };
-
 // Live member count for the Discord server, read from the public invite link.
 // Fetched when the site is built, then refreshed in the visitor's browser. Returns null if Discord can't be reached.
 export const discordInviteCode = links.discord.split('/').pop()!;
