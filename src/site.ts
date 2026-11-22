@@ -18,6 +18,9 @@ export const links = {
   venmo: 'https://venmo.com/u/Chemquest26',
   venmoHandle: '@Chemquest26',
   phones: ['267-541-8492', '484-995-5992'],
+  // Google Sheet "Instagram posts (website feed)" in Drive > Tech Management. Zapier adds a row (url, caption, posted)
+  // for every new Instagram post, and the homepage shows the newest ones. Anyone with the link can view it.
+  instagramSheet: 'https://docs.google.com/spreadsheets/d/16mfXL4lM8X42mPHp_qbimltW42Zv00LMxGxKvC2fDEM/gviz/tq?tqx=out:csv',
 };
 
 // beehiiv's sign-up form, so people subscribe without leaving our site. In beehiiv: Subscribers > Subscribe forms >

@@ -4,6 +4,7 @@ import Base from '../layouts/Base.astro';
 import UpcomingEvent from '../components/UpcomingEvent.astro';
 import NoUpcoming from '../components/NoUpcoming.astro';
 import Doodle from '../components/Doodle.astro';
+import InstagramFeed from '../components/InstagramFeed.astro';
 import { getEvents, getDiscordCounts, links, discordIcon } from '../site';
 import { getIssues } from '../newsletter';
 import hero from '../assets/photos/kids-at-experiment-table.jpg';
@@ -186,6 +187,8 @@ const experiments = [
       </figure>
     </div>
   </section>
+
+  <InstagramFeed />
 
   <section class="community" aria-labelledby="community-h">
     <div class="wrap community-grid">

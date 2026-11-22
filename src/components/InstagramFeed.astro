@@ -1,0 +1,116 @@
+---
+// "Latest on Instagram": the newest posts from @chemquestpa, using Instagram's own embeds.
+// The list comes from a Google Sheet that Zapier fills in (links.instagramSheet in src/site.ts), and it's read in
+// the visitor's browser, so a new post shows up without republishing the site. The section stays hidden until
+// there's at least one post, and if the sheet can't be reached.
+import { links } from '../site';
+---
+<section class="section ig" aria-labelledby="ig-h" hidden data-sheet={links.instagramSheet}>
+  <div class="wrap">
+    <div class="head-row">
+      <h2 id="ig-h">Latest on Instagram</h2>
+      <a class="go" href={links.instagram}>Follow @chemquestpa</a>
+    </div>
+    <ul class="ig-posts"></ul>
+  </div>
+</section>
+
+<script>
+  const SHOW = 3;
+  const section = document.querySelector<HTMLElement>('section.ig');
+
+  // Reads CSV, including captions with commas, quotes, or line breaks.
+  function parseCsv(text: string): string[][] {
+    const rows: string[][] = [];
+    let row: string[] = [], cell = '', quoted = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (quoted) {
+        if (c === '"' && text[i + 1] === '"') { cell += '"'; i++; }
+        else if (c === '"') quoted = false;
+        else cell += c;
+      } else if (c === '"') quoted = true;
+      else if (c === ',') { row.push(cell); cell = ''; }
+      else if (c === '\n' || c === '\r') {
+        if (c === '\r' && text[i + 1] === '\n') i++;
+        row.push(cell); rows.push(row); row = []; cell = '';
+      } else cell += c;
+    }
+    if (cell || row.length) { row.push(cell); rows.push(row); }
+    return rows;
+  }
+
+  // Only real post or reel links from Instagram get embedded.
+  const postUrl = (s: string) => {
+    const m = s.trim().match(/^https:\/\/(www\.)?instagram\.com\/(p|reel|tv)\/([\w-]+)/);
+    return m ? `https://www.instagram.com/${m[2]}/${m[3]}/` : null;
+  };
+
+  async function load() {
+    if (!section) return;
+    const res = await fetch(section.dataset.sheet!, { signal: AbortSignal.timeout(6000) });
+    if (!res.ok) return;
+    const [, ...rows] = parseCsv(await res.text());
+    const seen = new Set<string>();
+    const posts = rows
+      .map((r) => ({ url: postUrl(r[0] ?? ''), caption: (r[1] ?? '').trim(), posted: new Date(r[2] ?? '') }))
+      .filter((p): p is { url: string; caption: string; posted: Date } => !!p.url && !seen.has(p.url) && !!seen.add(p.url))
+      .reverse().slice(0, SHOW);
+    if (!posts.length) return;
+
+    const list = section.querySelector('.ig-posts')!;
+    for (const p of posts) {
+      // Instagram swaps this for the real post. If it can't, people still see the caption and a link.
+      const li = document.createElement('li');
+      const quote = document.createElement('blockquote');
+      quote.className = 'instagram-media';
+      quote.dataset.instgrmPermalink = p.url;
+      quote.dataset.instgrmVersion = '14';
+      if (!isNaN(+p.posted)) {
+        const when = document.createElement('p');
+        when.className = 'ig-date';
+        when.textContent = p.posted.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        quote.append(when);
+      }
+      if (p.caption) {
+        const cap = document.createElement('p');
+        cap.className = 'ig-cap';
+        cap.textContent = p.caption;
+        quote.append(cap);
+      }
+      const a = document.createElement('a');
+      a.className = 'go';
+      a.href = p.url;
+      a.textContent = 'See it on Instagram';
+      quote.append(a);
+      li.append(quote);
+      list.append(li);
+    }
+    section.hidden = false;
+
+    // Instagram's embed script only loads once the section is close to being on screen.
+    new IntersectionObserver((entries, obs) => {
+      if (!entries.some((e) => e.isIntersecting)) return;
+      obs.disconnect();
+      const s = document.createElement('script');
+      s.src = 'https://www.instagram.com/embed.js';
+      s.async = true;
+      document.body.append(s);
+    }, { rootMargin: '400px' }).observe(section);
+  }
+
+  load().catch(() => {});
+</script>
+
+<style>
+  .head-row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0.25rem 1rem; margin-bottom: 1.25rem; }
+  .head-row h2 { margin: 0; }
+  .ig-posts { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fill, minmax(min(20rem, 100%), 1fr)); align-items: start; }
+  .ig-posts li { position: relative; min-width: 0; max-width: 34rem; }
+  /* Instagram sets its own sizes on the embed; this keeps it inside its column on small phones. */
+  .ig-posts :global(.instagram-media) { min-width: 0 !important; max-width: 100% !important; margin: 0 !important; }
+  /* Until Instagram's embed loads (or if it can't), each post is a small card with its caption and a link. */
+  .ig-posts :global(blockquote.instagram-media) { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 1rem 1.1rem; }
+  .ig-posts :global(.ig-date) { margin: 0 0 0.4rem; font-size: 0.875rem; color: var(--muted); }
+  .ig-posts :global(.ig-cap) { margin: 0 0 0.6rem; display: -webkit-box; -webkit-line-clamp: 5; line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; white-space: pre-line; }
+</style>
